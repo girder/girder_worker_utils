@@ -9,13 +9,29 @@ class Types:
     NEW_FILE = 'new-file'
     NEW_FOLDER = 'new-folder'
 
+
 def _convert_cli_args(args, known_args):
     # TODO type conversion (for now everything's a string)
     return {known['id']: getattr(args, known['id']) for known in known_args}
 
 
 def task_cli(cli):
-    pass # TODO single CLI in a script
+    parser = argparse.ArgumentParser(prog=cli.__name__, description=cli._worker_task_description)
+    parser.add_argument('--girder-task', action='store_true')
+
+    arg_list = cli._worker_task_spec['inputs'] + cli._worker_task_spec['outputs']
+
+    for arg in arg_list:
+        # TODO support boolean inputs as flags
+        parser.add_argument(
+            '--' + arg['id'], help=arg['description'], default=arg.get('default', {}).get('data'))
+
+    args = parser.parse_args()
+
+    if args.girder_task:
+        print(json.dumps(cli._worker_task_spec))
+    else:
+        cli(**_convert_cli_args(args, arg_list))
 
 
 def task_clis(clis, name=None, description=None):
@@ -130,3 +146,14 @@ class docker_task(task):
             raise Exception('Unknown input or output specification: %r' % io_spec)
 
         return '--%s=%s{%s}' % (io_spec.id, token, io_spec.id)
+
+
+def set_item_task(client, item_id, fn):
+    return client.put('item/%s' % item_id, parameters={
+        'name': fn._worker_task_name,
+        'description': fn._worker_task_description,
+        'metadata': json.dumps({
+            'isItemTask': 'true',
+            'itemTaskSpec': fn._worker_task_spec
+        })
+    })
