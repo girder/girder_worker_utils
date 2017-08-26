@@ -3,6 +3,11 @@ import json
 
 __version__ = '0.1.0'
 
+class Types:
+    FILE = 'file'
+    FOLDER = 'directory'
+    NEW_FILE = 'new-file'
+    NEW_FOLDER = 'new-folder'
 
 def _convert_cli_args(args, known_args):
     # TODO type conversion (for now everything's a string)
@@ -65,6 +70,9 @@ class Input(object):
         if default is not None:
             self.dict['default'] = {'data': default}
 
+        if type in [Types.FILE, Types.FOLDER]:
+            self.dict['target'] = 'filepath'
+
 
 class Output(object):
     def __init__(self, id, name=None, description='', required=True, type='string'):
@@ -80,6 +88,9 @@ class Output(object):
             'description': description,
             'type': type
         }
+
+        if type in [Types.NEW_FILE, Types.NEW_FOLDER]:
+            self.dict['target'] = 'filepath'
 
 
 class task(object):
