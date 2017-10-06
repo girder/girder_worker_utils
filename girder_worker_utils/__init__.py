@@ -3,6 +3,7 @@ import json
 
 __version__ = '0.2.0'
 
+
 class Types:
     FILE = 'file'
     FOLDER = 'directory'
