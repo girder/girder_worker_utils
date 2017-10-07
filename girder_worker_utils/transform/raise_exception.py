@@ -1,9 +1,9 @@
 from kombu.exceptions import DecodeError
 
-from .transform import Transform
+from .base import Transform
 
 
-class Raise(Transform):
+class RaiseException(Transform):
 
     def transform(self):
         raise DecodeError("Some kind of Error")

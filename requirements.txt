@@ -5,6 +5,8 @@
 #    pip-compile --output-file requirements.txt requirements.in requirements-dev.in
 #
 amqp==2.2.2               # via kombu
+billiard==3.5.0.3         # via celery
+celery==4.1.0
 flake8-blind-except==0.1.1
 flake8-docstrings==1.1.0
 flake8-import-order==0.13
@@ -18,6 +20,7 @@ pycodestyle==2.3.1        # via flake8, flake8-import-order
 pydocstyle==2.0.0         # via flake8-docstrings
 pyflakes==1.5.0           # via flake8
 pytest==3.2.3
+pytz==2017.2              # via celery
 six==1.11.0
 snowballstemmer==1.2.1    # via pydocstyle
 vine==1.1.4               # via amqp
