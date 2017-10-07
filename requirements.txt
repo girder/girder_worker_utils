@@ -1,3 +1,4 @@
+amqp==2.2.2
 configparser==3.5.0
 enum34==1.1.6
 flake8==3.4.1
@@ -6,7 +7,9 @@ flake8-docstrings==1.1.0
 flake8-import-order==0.13
 flake8-polyfill==1.0.1
 funcsigs==1.0.2
+kombu==4.1.0
 mccabe==0.6.1
+pbr==3.1.1
 py==1.4.34
 pycodestyle==2.3.1
 pydocstyle==2.0.0
@@ -14,3 +17,5 @@ pyflakes==1.5.0
 pytest==3.2.3
 six==1.11.0
 snowballstemmer==1.2.1
+stevedore==1.27.1
+vine==1.1.4

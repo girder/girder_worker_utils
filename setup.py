@@ -1,7 +1,7 @@
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 init = os.path.join(os.path.dirname(__file__), 'girder_worker_utils', '__init__.py')
 with open(init) as fd:
@@ -25,9 +25,20 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5'
     ],
-    install_requires=['six'],
+    install_requires=[
+        'kombu',
+        'six',
+        'stevedore'
+    ],
     packages=find_packages(
         exclude=('tests.*', 'tests')
     ),
+    entry_points={
+        'girder.worker.transform': [
+            'capitalize = girder_worker_utils.transform.capitalize:Capitalize',
+            'reverse = girder_worker_utils.transform.reverse:Reverse',
+            'raise = girder_worker_utils.transform.raise:Raise'
+        ]
+    },
     zip_safe=False
 )
