@@ -8,6 +8,9 @@ with open(init) as fd:
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
 
+with open('requirements.in') as f:
+    install_requires = f.readlines()
+
 setup(
     name='girder-worker-utils',
     version=version,
@@ -25,10 +28,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5'
     ],
-    install_requires=[
-        'kombu',
-        'six'
-    ],
+    install_requires=install_requires,
     packages=find_packages(
         exclude=('tests.*', 'tests')
     ),
