@@ -1,21 +1,14 @@
 import functools
+from importlib import import_module
 
 from kombu.utils import json
-from stevedore.driver import DriverManager
-
-
-def get_transform_class(name):
-    return DriverManager(
-        namespace='girder.worker.transform',
-        name=name
-    ).driver
 
 
 def object_hook(obj):
-    if '_class' not in obj:
+    if '_class' not in obj or '_module' not in obj:
         return obj
 
-    cls = get_transform_class(obj['_class'])
+    cls = getattr(import_module(obj['_module']), obj['_class'])
     return cls.__obj__(obj["__state__"])
 
 

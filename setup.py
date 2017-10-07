@@ -27,18 +27,10 @@ setup(
     ],
     install_requires=[
         'kombu',
-        'six',
-        'stevedore'
+        'six'
     ],
     packages=find_packages(
         exclude=('tests.*', 'tests')
     ),
-    entry_points={
-        'girder.worker.transform': [
-            'capitalize = girder_worker_utils.transform.capitalize:Capitalize',
-            'reverse = girder_worker_utils.transform.reverse:Reverse',
-            'raise = girder_worker_utils.transform.raise:Raise'
-        ]
-    },
     zip_safe=False
 )
