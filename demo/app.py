@@ -1,6 +1,9 @@
+import functools
+from importlib import import_module
+
 from celery import Celery, Task
-from girder_worker_utils.serializer import deserialize, serialize
 from kombu.serialization import register
+from kombu.utils import json
 
 
 class CustomTask(Task):
@@ -12,6 +15,26 @@ class CustomTask(Task):
                 return arg
 
         return self.run(*[_t(a) for a in args], **kwargs)
+
+
+def object_hook(obj):
+    if '_class' not in obj or '_module' not in obj:
+        return obj
+
+    cls = getattr(import_module(obj['_module']), obj['_class'])
+    return cls.deserialize(obj['__state__'])
+
+
+def serialize(obj):
+    if hasattr(obj, 'serialize'):
+        obj = obj.serialize()
+    return json.dumps(obj, check_circular=False)
+
+
+def deserialize(obj):
+    return json.loads(
+        obj, _loads=functools.partial(
+            json.json.loads, object_hook=object_hook))
 
 
 # Register the custom serializer with kombu
