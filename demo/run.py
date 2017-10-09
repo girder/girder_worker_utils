@@ -1,6 +1,6 @@
-from girder_worker_utils.transform import RaiseException, Reverse
+from gw_utils_demo_app import tasks
+from gw_utils_demo_app.transform import RaiseException, Reverse
 
-import tasks
 
 # tasks.task.delay('foobar')
 print(tasks.task(Reverse('foobar')))

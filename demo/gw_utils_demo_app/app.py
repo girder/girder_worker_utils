@@ -45,7 +45,7 @@ register('girder_io', serialize, deserialize,
 app = Celery('proj',
              broker='amqp://',
              backend='amqp://',
-             include=['tasks'],
+             include=['gw_utils_demo_app.tasks'],
              task_cls=CustomTask)
 
 app.conf.update(
