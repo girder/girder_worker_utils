@@ -3,6 +3,11 @@ import inspect
 
 class Transform(object):
 
+    def __init__(self, *args, **kwargs):
+        self.value = None
+        if args:
+            self.value = args[0]
+
     def __json__(self):
         return self.serialize()
 
@@ -24,3 +29,6 @@ class Transform(object):
             'kwargs': kwargs
         }
         return obj
+
+    def transform(self):
+        return self.value
