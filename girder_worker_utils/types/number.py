@@ -14,6 +14,7 @@ class Number(Base):
     ... def func(value):
     ...     pass
     """
+
     paramType = 'number'
 
     def __init__(self, *args, **kwargs):

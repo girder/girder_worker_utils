@@ -1,7 +1,7 @@
 import pytest
 
-from .. import types
-from ..decorators import argument, MissingInputException
+from girder_worker_utils import types
+from girder_worker_utils.decorators import argument, MissingInputException
 
 
 @argument('n', types.Integer, help='The element to return')

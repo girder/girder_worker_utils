@@ -1,5 +1,5 @@
-from .vector import Vector
 from .number import Number
+from .vector import Vector
 
 
 class NumberVector(Vector):

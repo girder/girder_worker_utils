@@ -11,5 +11,6 @@ class NumberMultichoice(Choice):
     ... def func(images=(5, 10)):
     ...     pass
     """
+
     paramType = 'number-enumeration-multiple'
     multiple = True

@@ -1,5 +1,5 @@
-from .vector import Vector
 from .string import String
+from .vector import Vector
 
 
 class StringVector(Vector):

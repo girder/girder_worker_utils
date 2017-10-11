@@ -1,8 +1,9 @@
 from StringIO import StringIO
 
 from girder_client import GirderClient
-from girder_worker_utils.transform import Transform
 from kombu.exceptions import DecodeError
+
+from girder_worker_utils.transform import Transform
 
 
 class Capitalize(Transform):
