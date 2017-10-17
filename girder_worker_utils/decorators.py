@@ -1,7 +1,7 @@
 from inspect import getdoc
 try:
     from inspect import signature
-except ImportError:
+except ImportError:  # pragma: nocover
     from funcsigs import signature
 import six
 

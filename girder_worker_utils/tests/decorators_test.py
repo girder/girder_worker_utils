@@ -1,7 +1,8 @@
 import pytest
 
+from girder_worker_utils import decorators
 from girder_worker_utils import types
-from girder_worker_utils.decorators import argument, MissingInputException
+from girder_worker_utils.decorators import argument
 
 
 @argument('n', types.Integer, help='The element to return')
@@ -51,7 +52,7 @@ def test_positional_argument():
         'The element to return'
 
     assert fibonacci.call_item_task({'n': {'data': 10}}) == 55
-    with pytest.raises(MissingInputException):
+    with pytest.raises(decorators.MissingInputException):
         fibonacci.call_item_task({})
 
 
@@ -81,10 +82,10 @@ def test_multiple_arguments():
     assert desc['inputs'][3]['name'] == 'kwarg2'
     assert desc['inputs'][4]['name'] == 'kwarg3'
 
-    with pytest.raises(MissingInputException):
+    with pytest.raises(decorators.MissingInputException):
         complex_func.call_item_task({})
 
-    with pytest.raises(MissingInputException):
+    with pytest.raises(decorators.MissingInputException):
         complex_func.call_item_task({
             'arg1': {'data': 'value'}
         })
@@ -145,3 +146,29 @@ def test_girder_input_mode():
 
     assert item == 'itemid'
     assert folder == 'folderid'
+
+
+def test_missing_description_exception():
+    def func():
+        pass
+
+    with pytest.raises(decorators.MissingDescriptionException):
+        decorators.get_description_attribute(func)
+
+
+def test_argument_name_not_string():
+    with pytest.raises(TypeError):
+        argument(0, types.Integer)
+
+
+def test_argument_name_not_a_parameter():
+    with pytest.raises(ValueError):
+        @argument('notarg', types.Integer)
+        def func(arg):
+            pass
+
+
+def test_unhandled_input_binding():
+    arg = argument('arg', types.Integer)
+    with pytest.raises(ValueError):
+        decorators.get_input_data(arg, {})

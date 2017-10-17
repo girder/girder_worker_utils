@@ -16,10 +16,10 @@ class Vector(Base):
     seperator = ','
 
     def __init__(self, *args, **kwargs):
-        if self.paramType is None:
+        if self.paramType is None:  # pragma: nocover
             raise NotImplementedError('Subclasses should define paramType')
 
-        if self.elementClass is None:
+        if self.elementClass is None:  # pragma: nocover
             raise NotImplementedError('Subclasses should define elementClass')
 
         self.element = self.elementClass(*args, **kwargs)
