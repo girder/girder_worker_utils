@@ -1,4 +1,7 @@
+import importlib
 import inspect
+
+from . import json
 
 
 class Transform(object):
@@ -9,17 +12,19 @@ class Transform(object):
             self.value = args[0]
 
     def __json__(self):
-        return self.serialize()
-
-    def serialize(self):
         return {
             '_module': inspect.getmodule(self.__class__).__name__,
             '_class': self.__class__.__name__,
-            '__state__': self.__state__
+            '__state__': self.__state__,
+            '__json_hook__': 'girder_worker_utils.transform'
         }
 
-    @classmethod
-    def deserialize(cls, state):
+    @staticmethod
+    @json.hook('girder_worker_utils.transform')
+    def deserialize(data):
+        module = importlib.import_module(data['_module'])
+        cls = getattr(module, data['_class'])
+        state = data['__state__']
         return cls(*state.get('args', []), **state.get('kwargs', {}))
 
     def __new__(cls, *args, **kwargs):

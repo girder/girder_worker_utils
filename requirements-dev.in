@@ -2,5 +2,6 @@ flake8
 flake8-blind-except
 flake8-docstrings
 flake8-import-order
+mock
 pytest
 pytest-cov
