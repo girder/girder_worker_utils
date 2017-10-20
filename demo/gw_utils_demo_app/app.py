@@ -1,33 +1,25 @@
 import functools
-from importlib import import_module
 
 from celery import Celery, Task
 from kombu.serialization import register
 from kombu.utils import json
 
+from girder_worker_utils.json import object_hook
+
 
 class CustomTask(Task):
     def __call__(self, *args, **kwargs):
         def _t(arg):
-            try:
+            if hasattr(arg, 'transform'):
                 return arg.transform()
-            except AttributeError:
-                return arg
+            return arg
 
         return self.run(*[_t(a) for a in args], **kwargs)
 
 
-def object_hook(obj):
-    if '_class' not in obj or '_module' not in obj:
-        return obj
-
-    cls = getattr(import_module(obj['_module']), obj['_class'])
-    return cls.deserialize(obj['__state__'])
-
-
 def serialize(obj):
-    if hasattr(obj, 'serialize'):
-        obj = obj.serialize()
+    if hasattr(obj, '__json__'):
+        obj = obj.__json__()
     return json.dumps(obj, check_circular=False)
 
 
@@ -45,7 +37,7 @@ register('girder_io', serialize, deserialize,
 app = Celery('proj',
              broker='amqp://',
              backend='amqp://',
-             include=['gw_utils_demo_app.tasks'],
+             include=['gw_utils_demo_app.tasks', 'girder_worker_utils.transforms.girder'],
              task_cls=CustomTask)
 
 app.conf.update(
