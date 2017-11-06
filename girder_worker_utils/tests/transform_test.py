@@ -56,6 +56,15 @@ def test_noop_transform():
     assert CaptureTransform('some value').transform() == (('some value', ), {})
 
 
+def test_non_hook_transform_roundtrip():
+    obj = {'key': 'value',
+           'key2': ['list', 'of', 'values'],
+           'key3': {'inner': 'dict'}}
+
+    ret = json.loads(json.dumps(obj))
+    assert ret == obj
+
+
 def test_transform_serialize_roundtrip():
     args = ['arg1', 'arg2', 'arg3']
     kwargs = {'kwarg1': 'kwarg1', 'kwarg2': 'kwarg2'}

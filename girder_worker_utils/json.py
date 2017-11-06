@@ -57,7 +57,7 @@ class JSONEncoder(json.JSONEncoder):
 
 def object_hook(data):
     """Object hook passed to the JSONDecoder."""
-    if data.get('__class_hint__'):
+    if data.get('__class_hint__', None):
         return Hook(**data['__class_hint__']).construct(data)
     return data
 
