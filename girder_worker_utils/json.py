@@ -44,10 +44,6 @@ class Hook(object):
         return self.func(data)
 
 
-class JSONDecoder(json.JSONDecoder):
-    pass
-
-
 class JSONEncoder(json.JSONEncoder):
     def default(self, o):
         if hasattr(o, '__json__'):
