@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from functools import wraps
-from collections import OrderedDict
 import importlib
 
 
@@ -12,7 +11,6 @@ except ImportError:
 
 
 # Singleton/ClassVariableSingleton.py
-
 class Hook(object):
     """Deserialize objects with __class_hint__ attributes.
 
@@ -23,6 +21,7 @@ class Hook(object):
     is a classmethod.
 
     """
+
     def __init__(self, func=None, module=None, cls=None, **kwargs):
         module = importlib.import_module(module)
 
@@ -45,6 +44,7 @@ class Hook(object):
 
         return self.func(data)
 
+
 class JSONDecoder(json.JSONDecoder):
     pass
 
@@ -57,10 +57,11 @@ class JSONEncoder(json.JSONEncoder):
 
 
 def object_hook(data):
-    """object hook passed to the JSONDecoder."""
+    """Object hook passed to the JSONDecoder."""
     if data.get('__class_hint__', None):
         return Hook(**data['__class_hint__']).construct(data)
     return data
+
 
 @wraps(json.load)
 def load(*args, **kwargs):

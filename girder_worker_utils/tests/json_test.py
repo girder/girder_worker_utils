@@ -61,17 +61,16 @@ def test_dumps_raises_on_unhandled_type():
         json.dumps(obj)
 
 
-
 def deserialize_function(data):
     return data
+
 
 def test_class_hint_object_hook_function():
     data = {
         'key': 'value',
         '__class_hint__': {
             'func': 'deserialize_function',
-            'module': 'girder_worker_utils.tests.json_test'
-    }}
+            'module': 'girder_worker_utils.tests.json_test'}}
     rval = json.object_hook(data)
     assert rval == {'key': 'value'}
 
@@ -80,17 +79,16 @@ class ObjectHookClass(object):
     def __init__(self, data):
         self.data = data
 
+
 def test_class_hint_object_hook_class():
     data = {
         'key': 'value',
         '__class_hint__': {
             'func': 'ObjectHookClass',
-            'module': 'girder_worker_utils.tests.json_test'
-    }}
+            'module': 'girder_worker_utils.tests.json_test'}}
     rval = json.object_hook(data)
     assert isinstance(rval, ObjectHookClass)
     assert rval.data == {'key': 'value'}
-
 
 
 class ClassMethodObjectHookClass(object):
@@ -105,14 +103,14 @@ class ClassMethodObjectHookClass(object):
     def deserialize_static(data):
         return data
 
+
 def test_class_hint_object_hook_classmethod():
     data = {
         'key': 'value',
         '__class_hint__': {
             'cls': 'ClassMethodObjectHookClass',
             'func': 'deserialize_class',
-            'module': 'girder_worker_utils.tests.json_test'
-    }}
+            'module': 'girder_worker_utils.tests.json_test'}}
     rval = json.object_hook(data)
     assert rval == {'key': 'value'}
 
@@ -123,7 +121,6 @@ def test_class_hint_object_hook_staticmethod():
         '__class_hint__': {
             'cls': 'ClassMethodObjectHookClass',
             'func': 'deserialize_static',
-            'module': 'girder_worker_utils.tests.json_test'
-    }}
+            'module': 'girder_worker_utils.tests.json_test'}}
     rval = json.object_hook(data)
     assert rval == {'key': 'value'}

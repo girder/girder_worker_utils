@@ -1,6 +1,8 @@
+import abc
 import inspect
-import abc, six
-from . import json
+
+import six
+
 
 @six.add_metaclass(abc.ABCMeta)
 class Transform(object):
@@ -28,4 +30,4 @@ class Transform(object):
 
     @abc.abstractmethod
     def transform(self):
-       pass
+        pass
