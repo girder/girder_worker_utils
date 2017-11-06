@@ -1,23 +1,49 @@
 from __future__ import absolute_import
 
 from functools import wraps
-
-import json
-
-
-_hook_registry = {}
+from collections import OrderedDict
+import importlib
 
 
-def register_hook(name, func, *args, **kwargs):
-    _hook_registry[name] = func, args, kwargs
+try:
+    from kombu.utils import json
+except ImportError:
+    import json
 
 
-def hook(name, *args, **kwargs):
-    def decorator(func):
-        register_hook(name, func, *args, **kwargs)
-        return func
-    return decorator
+# Singleton/ClassVariableSingleton.py
 
+class Hook(object):
+    """Deserialize objects with __class_hint__ attributes.
+
+    This class abstracts over the process of turning a json dictionary
+    into an instantiated object.  It does this by accepting a string
+    keyword argument for the module and function that constructs the
+    object. You may optionally pass in class if the object constructor
+    is a classmethod.
+
+    """
+    def __init__(self, func=None, module=None, cls=None, **kwargs):
+        module = importlib.import_module(module)
+
+        if cls is not None:
+            cls = getattr(module, cls)
+            self.func = getattr(cls, func)
+        else:
+            self.func = getattr(module, func)
+
+    def construct(self, data):
+        """Construct the object.
+
+        Call the object constructor after removing __class_hint__ from
+        the object data.
+        """
+        try:
+            del data['__class_hint__']
+        except KeyError:
+            pass
+
+        return self.func(data)
 
 class JSONDecoder(json.JSONDecoder):
     pass
@@ -31,13 +57,10 @@ class JSONEncoder(json.JSONEncoder):
 
 
 def object_hook(data):
-    hook_definition = _hook_registry.get(data.get('__json_hook__'))
-    if hook_definition:
-        hook, args, kwargs = hook_definition
-        args = args + (data,)
-        return hook(*args, **kwargs)
+    """object hook passed to the JSONDecoder."""
+    if data.get('__class_hint__', None):
+        return Hook(**data['__class_hint__']).construct(data)
     return data
-
 
 @wraps(json.load)
 def load(*args, **kwargs):
