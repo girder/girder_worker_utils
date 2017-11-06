@@ -31,17 +31,16 @@ class Hook(object):
         else:
             self.func = getattr(module, func)
 
+        assert hasattr(self.func, '__call__'), \
+            'Object deserialization function must be callable!'
+
     def construct(self, data):
         """Construct the object.
 
         Call the object constructor after removing __class_hint__ from
         the object data.
         """
-        try:
-            del data['__class_hint__']
-        except KeyError:
-            pass
-
+        data.pop('__class_hint__')
         return self.func(data)
 
 
@@ -58,7 +57,7 @@ class JSONEncoder(json.JSONEncoder):
 
 def object_hook(data):
     """Object hook passed to the JSONDecoder."""
-    if data.get('__class_hint__', None):
+    if data.get('__class_hint__'):
         return Hook(**data['__class_hint__']).construct(data)
     return data
 
