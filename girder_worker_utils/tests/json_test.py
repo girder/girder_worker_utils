@@ -61,48 +61,69 @@ def test_dumps_raises_on_unhandled_type():
         json.dumps(obj)
 
 
-def test_register_object_hook_function():
-    hook_name = 'girder_worker_utils.test.bare_function_hook'
-    func = mock.Mock(return_value='return')
-    args = ('a', 'b')
-    kwargs = {'c': 'c'}
-    json.register_hook(hook_name, func, *args, **kwargs)
 
-    data = {'__json_hook__': hook_name}
+def deserialize_function(data):
+    return data
+
+def test_class_hint_object_hook_function():
+    data = {
+        'key': 'value',
+        '__class_hint__': {
+            'func': 'deserialize_function',
+            'module': 'girder_worker_utils.tests.json_test'
+    }}
     rval = json.object_hook(data)
-
-    assert rval == 'return'
-    func.assert_called_once_with(*(args + (data,)), **kwargs)
+    assert rval == {'key': 'value'}
 
 
-def test_register_object_hook_decorator():
-    hook_name = 'girder_worker_utils.test.decorated_hook'
-    func = mock.Mock(return_value='return')
+class ObjectHookClass(object):
+    def __init__(self, data):
+        self.data = data
 
-    @json.hook(hook_name)
-    def decorated_hook(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    data = {'__json_hook__': hook_name}
+def test_class_hint_object_hook_class():
+    data = {
+        'key': 'value',
+        '__class_hint__': {
+            'func': 'ObjectHookClass',
+            'module': 'girder_worker_utils.tests.json_test'
+    }}
     rval = json.object_hook(data)
+    assert isinstance(rval, ObjectHookClass)
+    assert rval.data == {'key': 'value'}
 
-    assert rval == 'return'
-    func.assert_called_once_with(data)
 
 
-def test_encode_decode_class():
-    hook_name = 'girder_worker_utils.test.decode_with_hook'
-    deserialized = {}
+class ClassMethodObjectHookClass(object):
+    def __init__(self, *args, **kwargs):
+        pass
 
-    class TestClass(object):
-        def __json__(self):
-            return {'__json_hook__': hook_name}
+    @classmethod
+    def deserialize_class(cls, data):
+        return data
 
-        @staticmethod
-        @json.hook(hook_name)
-        def deserialize(data):
-            return deserialized
+    @staticmethod
+    def deserialize_static(data):
+        return data
 
-    data = {'test instance': TestClass()}
-    rval = json.loads(json.dumps(data))
-    assert rval['test instance'] is deserialized
+def test_class_hint_object_hook_classmethod():
+    data = {
+        'key': 'value',
+        '__class_hint__': {
+            'cls': 'ClassMethodObjectHookClass',
+            'func': 'deserialize_class',
+            'module': 'girder_worker_utils.tests.json_test'
+    }}
+    rval = json.object_hook(data)
+    assert rval == {'key': 'value'}
+
+
+def test_class_hint_object_hook_staticmethod():
+    data = {
+        'key': 'value',
+        '__class_hint__': {
+            'cls': 'ClassMethodObjectHookClass',
+            'func': 'deserialize_static',
+            'module': 'girder_worker_utils.tests.json_test'
+    }}
+    rval = json.object_hook(data)
+    assert rval == {'key': 'value'}
