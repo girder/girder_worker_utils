@@ -58,22 +58,10 @@ def object_hook(data):
     return data
 
 
-@wraps(json.load)
-def load(*args, **kwargs):
-    kwargs.setdefault('object_hook', object_hook)
-    return json.load(*args, **kwargs)
-
-
 @wraps(json.loads)
 def loads(*args, **kwargs):
     kwargs.setdefault('object_hook', object_hook)
     return json.loads(*args, **kwargs)
-
-
-@wraps(json.dump)
-def dump(*args, **kwargs):
-    kwargs.setdefault('cls', JSONEncoder)
-    return json.dump(*args, **kwargs)
 
 
 @wraps(json.dumps)
