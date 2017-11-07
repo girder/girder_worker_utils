@@ -1,13 +1,9 @@
 from __future__ import absolute_import
 
 from functools import wraps
+
 import importlib
-
-
-try:
-    from kombu.utils import json
-except ImportError:
-    import json
+import json
 
 
 # Singleton/ClassVariableSingleton.py
@@ -58,10 +54,26 @@ def object_hook(data):
     return data
 
 
+class JSONDecoder(json.JSONDecoder):
+    pass
+
+
+@wraps(json.load)
+def load(*args, **kwargs):
+    kwargs.setdefault('object_hook', object_hook)
+    return json.load(*args, **kwargs)
+
+
 @wraps(json.loads)
 def loads(*args, **kwargs):
     kwargs.setdefault('object_hook', object_hook)
     return json.loads(*args, **kwargs)
+
+
+@wraps(json.dump)
+def dump(*args, **kwargs):
+    kwargs.setdefault('cls', JSONEncoder)
+    return json.dump(*args, **kwargs)
 
 
 @wraps(json.dumps)
