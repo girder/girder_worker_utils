@@ -19,6 +19,13 @@ class Transform(object):
 
         return data
 
+    def model_repr(self):
+        """
+        This method is called before save the argument in the job model.
+        """
+        return str(self)
+
+
     @classmethod
     def deserialize(cls, data):
         self = cls.__new__(cls)
