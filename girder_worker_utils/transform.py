@@ -25,6 +25,8 @@ class Transform(object):
         """
         return str(self)
 
+    def cleanup(self):
+        pass
 
     @classmethod
     def deserialize(cls, data):
