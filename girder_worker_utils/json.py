@@ -4,7 +4,7 @@ from functools import wraps
 
 import importlib
 import json
-
+import six
 
 # Singleton/ClassVariableSingleton.py
 class Hook(object):
@@ -49,9 +49,10 @@ class JSONEncoder(json.JSONEncoder):
 
 def object_hook(data):
     """Object hook passed to the JSONDecoder."""
-    if data.get('__class_hint__', None):
+    try:
         return Hook(**data['__class_hint__']).construct(data)
-    return data
+    except Exception:
+        return data
 
 
 class JSONDecoder(json.JSONDecoder):
