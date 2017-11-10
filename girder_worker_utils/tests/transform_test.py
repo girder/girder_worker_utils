@@ -1,6 +1,6 @@
 import pytest
+import jsonpickle
 
-from girder_worker_utils import json
 from girder_worker_utils.transform import Transform
 
 
@@ -36,7 +36,7 @@ class CustomSerializeTransform(Transform):
         self.arg1 = arg1
         self.kwarg1 = kwarg1
 
-    def serialize(self):
+    def __getstate__(self):
         return {'some_attr': 'some_value'}
 
     def transform(self):
@@ -61,15 +61,15 @@ def test_non_hook_transform_roundtrip():
            'key2': ['list', 'of', 'values'],
            'key3': {'inner': 'dict'}}
 
-    ret = json.loads(json.dumps(obj))
+    ret = jsonpickle.decode(jsonpickle.encode(obj))
     assert ret == obj
 
 
 def test_transform_serialize_roundtrip():
-    args = ['arg1', 'arg2', 'arg3']
+    args = ('arg1', 'arg2', 'arg3')
     kwargs = {'kwarg1': 'kwarg1', 'kwarg2': 'kwarg2'}
     original_instance = CaptureTransform(*args, **kwargs)
-    new_instance = json.loads(json.dumps(original_instance))
+    new_instance = jsonpickle.decode(jsonpickle.encode(original_instance))
 
     assert isinstance(new_instance, Transform)
     assert new_instance.args == args
@@ -77,7 +77,7 @@ def test_transform_serialize_roundtrip():
 
 
 def test_basic_custom_transform_arg1_roundtrip():
-    new_instance = json.loads(json.dumps(
+    new_instance = jsonpickle.decode(jsonpickle.encode(
         BasicCustomTransform('some_value')
     ))
 
@@ -86,7 +86,7 @@ def test_basic_custom_transform_arg1_roundtrip():
 
 
 def test_basic_custom_transform_kwarg1_None_roundtrip():
-    new_instance = json.loads(json.dumps(
+    new_instance = jsonpickle.decode(jsonpickle.encode(
         BasicCustomTransform(None)
     ))
 
@@ -95,7 +95,7 @@ def test_basic_custom_transform_kwarg1_None_roundtrip():
 
 
 def test_basic_custom_transform_kwarg1_not_None_roundtrip():
-    new_instance = json.loads(json.dumps(
+    new_instance = jsonpickle.decode(jsonpickle.encode(
         BasicCustomTransform(None, kwarg1='some_value')
     ))
 
@@ -104,7 +104,7 @@ def test_basic_custom_transform_kwarg1_not_None_roundtrip():
 
 
 def test_computed_custom_transform_kwarg1_has_computed_value_roundtrip():
-    new_instance = json.loads(json.dumps(
+    new_instance = jsonpickle.decode(jsonpickle.encode(
         ComputedCustomTransform()
     ))
 
@@ -113,7 +113,7 @@ def test_computed_custom_transform_kwarg1_has_computed_value_roundtrip():
 
 
 def test_custom_serialize_transform_has_correct_attrs_roundtrip():
-    new_instance = json.loads(json.dumps(
+    new_instance = jsonpickle.decode(jsonpickle.encode(
         CustomSerializeTransform('arg1', 'kwarg1')
     ))
 
