@@ -1,5 +1,6 @@
-import pytest
 import jsonpickle
+import pytest
+
 
 from girder_worker_utils.transform import Transform
 

@@ -57,7 +57,6 @@ class GirderItemMetadata(GirderClientTransform):
         return data
 
 
-
 class GirderUploadToItem(GirderClientTransform):
     def __init__(self, _id, delete_file=False, **kwargs):
         super(GirderUploadToItem, self).__init__(**kwargs)

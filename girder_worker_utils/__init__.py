@@ -1,5 +1,6 @@
 __version__ = '0.6.0'
 
+
 def _walk_obj(obj, func, leaf_condition=None):
     """Walk through a nested object applying func to each leaf element.
 

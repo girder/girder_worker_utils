@@ -9,8 +9,12 @@ class Transform(object):
         pass
 
     def model_repr(self):
-        """
-        This method is called before save the argument in the job model.
+        """Return as representation of the object suitable for storing in mongo.
+
+        This function retuns a string representation of the object
+        that is stored in a girder Job Model's 'args' or 'kwargs'
+        fields.  It is for display purposes only.
+
         """
         return str(self)
 
