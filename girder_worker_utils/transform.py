@@ -1,39 +1,26 @@
-import importlib
-import inspect
+import abc
 
-from . import json
+import six
 
 
+@six.add_metaclass(abc.ABCMeta)
 class Transform(object):
-
     def __init__(self, *args, **kwargs):
-        self.value = None
-        if args:
-            self.value = args[0]
+        pass
 
-    def __json__(self):
-        return {
-            '_module': inspect.getmodule(self.__class__).__name__,
-            '_class': self.__class__.__name__,
-            '__state__': self.__state__,
-            '__json_hook__': 'girder_worker_utils.transform'
-        }
+    def model_repr(self):
+        """Return as representation of the object suitable for storing in mongo.
 
-    @staticmethod
-    @json.hook('girder_worker_utils.transform')
-    def deserialize(data):
-        module = importlib.import_module(data['_module'])
-        cls = getattr(module, data['_class'])
-        state = data['__state__']
-        return cls(*state.get('args', []), **state.get('kwargs', {}))
+        This function retuns a string representation of the object
+        that is stored in a girder Job Model's 'args' or 'kwargs'
+        fields.  It is for display purposes only.
 
-    def __new__(cls, *args, **kwargs):
-        obj = object.__new__(cls)
-        obj.__state__ = {
-            'args': args,
-            'kwargs': kwargs
-        }
-        return obj
+        """
+        return str(self)
 
+    def cleanup(self):
+        pass
+
+    @abc.abstractmethod
     def transform(self):
-        return self.value
+        pass
