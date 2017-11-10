@@ -1,3 +1,4 @@
 funcsigs ; python_version < '3.5'
 girder-client>=2
 six
+jsonpickle
