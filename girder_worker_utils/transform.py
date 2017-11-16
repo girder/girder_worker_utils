@@ -8,7 +8,7 @@ class Transform(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def model_repr(self):
+    def _repr_model_(self):
         """Return as representation of the object suitable for storing in mongo.
 
         This function retuns a string representation of the object
