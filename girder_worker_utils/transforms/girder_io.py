@@ -27,7 +27,7 @@ class GirderFileId(GirderClientTransform):
         super(GirderFileId, self).__init__(**kwargs)
         self.file_id = _id
 
-    def model_repr(self):
+    def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.file_id)
 
     def transform(self):
@@ -48,7 +48,7 @@ class GirderItemMetadata(GirderClientTransform):
         super(GirderItemMetadata, self).__init__(**kwargs)
         self.item_id = _id
 
-    def model_repr(self):
+    def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.item_id)
 
     def transform(self, data):
@@ -62,7 +62,7 @@ class GirderUploadToItem(GirderClientTransform):
         super(GirderUploadToItem, self).__init__(**kwargs)
         self.item_id = _id
 
-    def model_repr(self):
+    def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.item_id)
 
     def transform(self, path):
