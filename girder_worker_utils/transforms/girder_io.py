@@ -23,24 +23,33 @@ class GirderClientTransform(Transform):
 
 
 class GirderFileId(GirderClientTransform):
-    def __init__(self, _id, **kwargs):
+    def __init__(self, _id, dir=None, **kwargs):
         super(GirderFileId, self).__init__(**kwargs)
         self.file_id = _id
+        self._dir = dir
+        # Only clean up if we are creating it.
+        self._cleanup = dir is None
 
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.file_id)
 
     def transform(self):
+        if self._dir is None:
+            self._dir = tempfile.mkdtemp()
+
+        # TODO Why is our extension .csv?
         self.file_path = os.path.join(
-            tempfile.mkdtemp(), '{}.csv'.format(self.file_id))
+            self._dir, '{}.csv'.format(self.file_id))
 
         self.gc.downloadFile(self.file_id, self.file_path)
 
         return self.file_path
 
     def cleanup(self):
-        shutil.rmtree(os.path.dirname(self.file_path),
-                      ignore_errors=True)
+        if self._cleanup:
+            shutil.rmtree(self._dir,
+                          ignore_errors=True)
+
 
 
 class GirderItemMetadata(GirderClientTransform):
