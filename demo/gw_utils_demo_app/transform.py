@@ -11,7 +11,7 @@ class Capitalize(Transform):
 class RaiseException(Transform):
 
     def transform(self):
-        raise DecodeError("Some kind of Error")
+        raise DecodeError('Some kind of Error')
 
 
 class Reverse(Transform):
