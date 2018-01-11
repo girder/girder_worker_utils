@@ -1,3 +1,5 @@
+import six
+
 __version__ = '0.7.1'
 
 
@@ -23,7 +25,7 @@ def _walk_obj(obj, func, leaf_condition=None):
 
     if isinstance(obj, dict):
         return {k: _walk_obj(v, func, leaf_condition=leaf_condition)
-                for k, v in obj.iteritems()}
+                for k, v in six.viewitems(obj)}
 
     elif isinstance(obj, list):
         return [_walk_obj(v, func, leaf_condition=leaf_condition) for v in obj]
