@@ -1,6 +1,6 @@
 import six
 
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 
 
 def _walk_obj(obj, func, leaf_condition=None):
