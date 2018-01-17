@@ -32,7 +32,7 @@ class GirderFileId(GirderClientTransform):
 
     def transform(self):
         self.file_path = os.path.join(
-            tempfile.mkdtemp(), '{}.csv'.format(self.file_id))
+            tempfile.mkdtemp(), '{}'.format(self.file_id))
 
         self.gc.downloadFile(self.file_id, self.file_path)
 
