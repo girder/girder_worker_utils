@@ -4,7 +4,7 @@ import tempfile
 
 from girder_client import GirderClient
 
-from ..transform import Transform
+from ..transform import ResultTransform, Transform
 
 
 class GirderClientTransform(Transform):
@@ -20,6 +20,10 @@ class GirderClientTransform(Transform):
                 self.gc = gc
         except ImportError:
             self.gc = None
+
+
+class GirderClientResultTransform(ResultTransform, GirderClientTransform):
+    pass
 
 
 class GirderFileId(GirderClientTransform):
@@ -57,7 +61,7 @@ class GirderItemMetadata(GirderClientTransform):
         return data
 
 
-class GirderUploadToItem(GirderClientTransform):
+class GirderUploadToItem(GirderClientResultTransform):
     def __init__(self, _id, delete_file=False, **kwargs):
         super(GirderUploadToItem, self).__init__(**kwargs)
         self.item_id = _id
