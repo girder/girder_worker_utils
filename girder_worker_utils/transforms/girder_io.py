@@ -66,6 +66,7 @@ class GirderUploadToItem(GirderClientResultTransform):
         super(GirderUploadToItem, self).__init__(**kwargs)
         self.item_id = _id
         self.upload_kwargs = upload_kwargs or {}
+        self.delete_file = delete_file
 
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.item_id)
@@ -86,4 +87,4 @@ class GirderUploadToItem(GirderClientResultTransform):
             if os.path.isdir(self.output_file_path):
                 shutil.rmtree(self.output_file_path)
             else:
-                shutil.rm(self.output_file_path)
+                os.remove(self.output_file_path)
