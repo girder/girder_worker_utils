@@ -5,9 +5,6 @@ import six
 
 @six.add_metaclass(abc.ABCMeta)
 class Transform(object):
-    def __init__(self, *args, **kwargs):
-        pass
-
     def _repr_model_(self):
         """Return as representation of the object suitable for storing in mongo.
 
@@ -23,4 +20,11 @@ class Transform(object):
 
     @abc.abstractmethod
     def transform(self):
+        pass
+
+
+@six.add_metaclass(abc.ABCMeta)
+class ResultTransform(Transform):
+    @abc.abstractmethod
+    def transform(self, data):
         pass
