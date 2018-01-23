@@ -1,9 +1,10 @@
 import sys
 
-from girder_worker_utils.tee import TeeStdErr, TeeStdOut
+from girder_worker_utils.tee import Tee, tee_stdout, TeeStdErr, TeeStdOut
 
 
-class TeeCapture(TeeStdOut):
+@tee_stdout
+class TeeCapture(Tee):
     def __init__(self, *args, **kwargs):
         self.buf = ''
         super(TeeCapture, self).__init__(*args, **kwargs)
