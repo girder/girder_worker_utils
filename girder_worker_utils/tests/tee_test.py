@@ -82,3 +82,96 @@ def test_tee_overwrites_write_pass_through_false(capfd):
 
     out, err = capfd.readouterr()
     assert out == ''
+
+
+def test_tee_reset_function_resets(capfd):
+    original_stdout = sys.stdout
+
+    o = TeeCapture()
+
+    print('Test String')
+    out, err = capfd.readouterr()
+
+    assert o.buf == 'Test String\n'
+    assert out == 'Test String\n'
+
+    o.reset()
+
+    assert sys.stdout == original_stdout
+
+
+def test_tee_multiple_tee_objects_downstream():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    assert sys.stdout == o3
+    assert sys.stdout._downstream == o2
+    assert sys.stdout._downstream._downstream == o1
+    assert sys.stdout._downstream._downstream._downstream == original_stdout
+
+
+def test_tee_multiple_tee_objects_reset_o1():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    o1.reset()
+
+    assert o3._downstream == o2
+    assert o2._downstream == original_stdout
+
+
+def test_tee_multiple_tee_objects_reset_o2():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    o2.reset()
+
+    assert o3._downstream == o1
+    assert o1._downstream == original_stdout
+
+
+def test_tee_multiple_tee_objects_reset_o3():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    o3.reset()
+
+    assert sys.stdout == o2
+    assert o2._downstream == o1
+    assert o1._downstream == original_stdout
+
+
+def test_tee_multiple_tee_objects_reset_o3_then_o1():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    o3.reset()
+
+    assert sys.stdout == o2
+    assert o2._downstream == o1
+    assert o1._downstream == original_stdout
+
+    o1.reset()
+
+    assert sys.stdout == o2
+    assert o2._downstream == original_stdout
+
+
+def test_tee_multiple_tee_objects_reset_o3_then_o1_then_o2():
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    o3.reset()
+
+    assert sys.stdout == o2
+    assert o2._downstream == o1
+    assert o1._downstream == original_stdout
+
+    o1.reset()
+
+    assert sys.stdout == o2
+    assert o2._downstream == original_stdout
+
+    o2.reset()
+
+    assert sys.stdout == original_stdout
