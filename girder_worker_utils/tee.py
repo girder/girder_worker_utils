@@ -2,6 +2,13 @@ import sys
 
 
 def tee_stdout(cls):
+    """Decorate a Tee class giving it access to sys.stdout.
+
+    This function is intended to decorate a class that subclasses the
+    Tee object. It assigns the _set_stream and _get_stream methods on
+    the cls in such a way that the class's write() method will recieve
+    data passed to sys.stdout.
+    """
     def _set_stdout(stream):
         """Set sys.stdout to a new file-like object.
 
@@ -24,6 +31,13 @@ def tee_stdout(cls):
 
 
 def tee_stderr(cls):
+    """Decorate a Tee class giving it access to sys.stderr.
+
+    This function is intended to decorate a class that subclasses the
+    Tee object. It assigns the _set_stream and _get_stream methods on
+    the cls in such a way that the class's write() method will recieve
+    data passed to sys.stderr.
+    """
     def _set_stderr(stream):
         """Set sys.stderr to a new file-like object.
 

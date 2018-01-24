@@ -110,6 +110,25 @@ def test_tee_multiple_tee_objects_downstream():
     assert sys.stdout._downstream._downstream._downstream == original_stdout
 
 
+def test_tee_multiple_tee_objects_each_recieves_write(capfd):
+    original_stdout = sys.stdout
+    o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
+
+    assert sys.stdout == o3
+    assert o3._downstream == o2
+    assert o2._downstream == o1
+    assert o1._downstream == original_stdout
+
+    print('Test String')
+
+    assert o3.buf == 'Test String\n'
+    assert o2.buf == 'Test String\n'
+    assert o1.buf == 'Test String\n'
+
+    out, err = capfd.readouterr()
+    assert out == 'Test String\n'
+
+
 def test_tee_multiple_tee_objects_reset_o1():
     original_stdout = sys.stdout
     o1, o2, o3 = TeeCapture(), TeeCapture(), TeeCapture()
