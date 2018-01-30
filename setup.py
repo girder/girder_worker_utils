@@ -3,17 +3,13 @@ import re
 
 from setuptools import find_packages, setup
 
-init = os.path.join(os.path.dirname(__file__), 'girder_worker_utils', '__init__.py')
-with open(init) as fd:
-    version = re.search(
-        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
-
 with open('requirements.in') as f:
     install_requires = f.readlines()
 
 setup(
     name='girder-worker-utils',
-    version=version,
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     description='Helper utilities for the Girder Worker',
     author='Kitware, Inc.',
     author_email='kitware@kitware.com',

@@ -1,6 +1,11 @@
 import six
 
-__version__ = '0.8.0'
+from pkg_resources import get_distribution, DistributionNotFound
+try:
+    __version__ = get_distribution(__name__).version
+except DistributionNotFound:
+    # package is not installed
+    pass
 
 
 def _walk_obj(obj, func, leaf_condition=None):
