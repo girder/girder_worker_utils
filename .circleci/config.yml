@@ -1,0 +1,63 @@
+version: 2
+
+initialize-venv: &initialize-venv
+  run:
+    name: Initialize Virtual Environment
+    command: |
+      python -m virtualenv ../venv || python -m venv ../venv
+      . ../venv/bin/activate
+
+install-deps: &install-deps
+  run:
+    name: Install CI dependencies
+    command: |
+      . ../venv/bin/activate
+      pip install tox
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/python:2.7
+    steps :
+      - checkout
+      - *initialize-venv
+      - *install-deps
+      - run:
+          name: Run lint tests
+          command: |
+            . ../venv/bin/activate
+            tox -e flake8
+
+  py2_unit_tests:
+    docker:
+      - image: circleci/python:2.7
+    steps :
+      - checkout
+      - *initialize-venv
+      - *install-deps
+      - run:
+          name: Run unit tests
+          command: |
+            . ../venv/bin/activate
+            tox -e py27
+
+  py3_unit_tests:
+    docker:
+      - image: circleci/python:3.6
+    steps :
+      - checkout
+      - *initialize-venv
+      - *install-deps
+      - run:
+          name: Run unit tests
+          command: |
+            . ../venv/bin/activate
+            tox -e py36
+
+workflows:
+  version: 2
+  ci:
+    jobs:
+      - lint
+      - py2_unit_tests
+      - py3_unit_tests
