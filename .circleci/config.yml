@@ -85,14 +85,26 @@ workflows:
   version: 2
   ci:
     jobs:
-      - lint
-      - py2_unit_tests
-      - py3_unit_tests
+      - lint:
+          filters:
+            tags:
+              only: /^v.*/
+      - py2_unit_tests:
+          filters:
+            tags:
+              only: /^v.*/
+
+      - py3_unit_tests:
+          filters:
+            tags:
+              only: /^v.*/
+
       - release:
           requires:
             - lint
             - py2_unit_tests
             - py3_unit_tests
+
           filters:
             tags:
               only: /^v.*/
