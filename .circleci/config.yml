@@ -54,6 +54,33 @@ jobs:
             . ../venv/bin/activate
             tox -e py36
 
+
+  release:
+    docker:
+      - image: circleci/python:2.7
+
+    steps:
+      - checkout
+      - *initialize-venv
+      - run:
+          name: Install Release Dependencies
+          command: |
+            . ../venv/bin/activate
+            pip install twine setuptools_scm
+
+      - run:
+          name: Build the Project
+          command: |
+            . ../venv/bin/activate
+            python setup.py sdist
+
+      - run:
+          name: Release to PyPI
+          command: |
+            . ../venv/bin/activate
+            twine upload dist/*
+
+
 workflows:
   version: 2
   ci:
@@ -61,3 +88,14 @@ workflows:
       - lint
       - py2_unit_tests
       - py3_unit_tests
+      - release:
+          requires:
+            - lint
+            - py2_unit_tests
+            - py3_unit_tests
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              only:
+                - master
