@@ -1,17 +1,8 @@
-from .base import Base
+import click
 
 
-class Color(Base):
-    """Define a task parameter expecting a color value.
-
-    >>> @argument('background', types.Color)
-    ... def func(background):
-    ...     pass
-    """
-
-    description = {
-        'type': 'color',
-        'description': 'Provide a color value'
-    }
-
-    # TODO: handle normalization and validation
+class Color(click.types.StringParamType):
+    def item_tasks_json(self, param, ctx=None):
+        return {
+            'type': 'color'
+        }

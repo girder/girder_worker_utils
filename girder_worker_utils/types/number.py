@@ -1,67 +1,32 @@
-import numbers
-
-from .base import Base
+import click
 
 
-class Number(Base):
-    """Define a numeric parameter type optionally in a given range.
+class Integer(click.types.IntRange):
+    def __init__(self, widget='number', step=1, **kwargs):
+        self.widget = widget
+        self.step = step
+        super(Integer, self).__init__(**kwargs)
 
-    Values accepted by this parameter can be any numeric value.
-    If min/max/step are provided, then the values must be a float
-    or int.
+    def item_tasks_json(self, param, ctx=None):
+        widget = self.widget
+        if param.nargs > 1:
+            widget = 'number-vector'
+        return {
+            'type': widget,
+            'min': self.min,
+            'max': self.max,
+            'step': self.step
+        }
 
-    >>> @argument('value', types.Number, min=10, max=100, step=10)
-    ... def func(value):
-    ...     pass
-    """
 
-    paramType = 'number'
-
-    def __init__(self, *args, **kwargs):
-        """Construct a new numeric parameter type.
-
-        :param float min: The minimum valid value
-        :param float max: The maximum valid value
-        :param float step: The resolution of valid values
-        """
-        super(Number, self).__init__(*args, **kwargs)
-        self.min = kwargs.get('min')
-        self.max = kwargs.get('max')
-        self.step = kwargs.get('step')
-
-    def describe(self, **kwargs):
-        desc = super(Number, self).describe(**kwargs)
-
-        if self.min is not None:
-            desc['min'] = self.min
-        if self.max is not None:
-            desc['max'] = self.max
-        if self.step is not None:
-            desc['step'] = self.step
-
-        desc['type'] = self.paramType
-        desc['description'] = self.help or 'Select a number'
-        return desc
-
-    def validate(self, value):
-        if not isinstance(value, numbers.Number):
-            raise TypeError('Expected a number for parameter "%s"' % self.name)
-
-        if self.min is not None and value < self.min:
-            raise ValueError('Expected %s <= %s' % (str(self.min), str(value)))
-
-        if self.max is not None and value > self.max:
-            raise ValueError('Expected %s >= %s' % (str(self.max), str(value)))
-
-    def serialize(self, value):
-        if self.step is not None:
-            n = round(float(value) / self.step)
-            value = n * self.step
-        return value
-
-    def deserialize(self, value):
-        try:
-            value = float(value)
-        except ValueError:
-            pass
-        return value
+# click.FloatRange is created in click master, but not released.
+# We could consider backporting it to support min/max arguments
+# and slider widgets.
+class Float(click.types.FloatParamType):
+    def item_tasks_json(self, param, ctx=None):
+        widget = 'number'
+        if param.nargs > 1:
+            widget = 'number-vector'
+        return {
+            'type': widget
+        }
