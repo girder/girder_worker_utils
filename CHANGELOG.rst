@@ -17,6 +17,8 @@ Bug fixes
 Changes
 -------
 
+* Update transform()/cleanup() methods to accept *args and **kwargs (`#21 <https://github.com/girder/girder_worker_utils/pull/21>`_)
+
 Deprecations
 ------------
 
