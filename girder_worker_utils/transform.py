@@ -15,16 +15,16 @@ class Transform(object):
         """
         return str(self)
 
-    def cleanup(self):
+    def cleanup(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def transform(self):
+    def transform(self, *args, **kwargs):
         pass
 
 
 @six.add_metaclass(abc.ABCMeta)
 class ResultTransform(Transform):
     @abc.abstractmethod
-    def transform(self, data):
+    def transform(self, data, *args, **kwargs):
         pass
