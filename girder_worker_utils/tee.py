@@ -154,7 +154,7 @@ class Tee(object):
                 prev._downstream = cur._downstream
 
     def __getattr__(self, attr):
-        return getattr(self._original, attr)
+        return getattr(self._downstream, attr)
 
     def write(self, *args, **kwargs):
         if self.pass_through:
