@@ -1,7 +1,7 @@
 import click
 
 
-class File(click.types.File):
+class File(click.types.Path):
     def item_tasks_json(self, param, ctx=None):
         widget = 'file'
         if param.is_output():
@@ -11,7 +11,7 @@ class File(click.types.File):
         }
 
 
-class Image(click.types.File):
+class Image(click.types.Path):
     def item_tasks_json(self, param, ctx=None):
         return {
             'type': 'image'
