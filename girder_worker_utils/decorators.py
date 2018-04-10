@@ -31,3 +31,13 @@ def task_output(*param_decls, **attrs):
     attrs.setdefault('cls', Output)
     attrs.setdefault('type', String())
     return click.argument(*decls, **attrs)
+
+
+def get_item_tasks_description(func):
+    if not hasattr(func, 'main') or not hasattr(func.main, 'item_tasks_json'):
+        raise MissingDescriptionException
+    return func.main.item_tasks_json()
+
+
+class MissingDescriptionException(Exception):
+    pass
