@@ -1,6 +1,6 @@
 import click
 
-from ..transforms.girder_io import GirderFileId, GirderFolderId
+from ..transforms.girder_io import GirderFileId, GirderFolderId, GirderUploadToFolder
 
 
 class File(click.types.Path):
@@ -13,10 +13,10 @@ class File(click.types.Path):
         }
 
     def resolve_item_tasks_binding(self, value, param, **kwargs):
-        if param.is_output():
-            return value
-
         return GirderFileId(value['_id'])
+
+    def generate_result_hook(self, value, param, **kwargs):
+        return GirderUploadToFolder(value['parent_id'], value['name'])
 
 
 class Image(click.types.Path):
@@ -26,10 +26,10 @@ class Image(click.types.Path):
         }
 
     def resolve_item_tasks_binding(self, value, param, **kwargs):
-        if param.is_output():
-            return value
-
         return GirderFileId(value['_id'])
+
+    def generate_result_hook(self, value, param, **kwargs):
+        return GirderUploadToFolder(value['parent_id'], value['name'])
 
 
 class Folder(click.types.Path):
@@ -42,7 +42,7 @@ class Folder(click.types.Path):
         }
 
     def resolve_item_tasks_binding(self, value, param, **kwargs):
-        if param.is_output():
-            return value
-
         return GirderFolderId(value['_id'])
+
+    def generate_result_hook(self, value, param, **kwargs):
+        return GirderUploadToFolder(value['parent_id'], value['name'])

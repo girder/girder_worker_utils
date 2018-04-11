@@ -62,6 +62,15 @@ class Command(click.Command):
 
         return [], kwargs
 
+    def generate_result_hooks(self, outputs, inputs={}):
+        result_hooks = []
+        with self.make_context(self.name, [], resilient_parsing=True) as ctx:
+            for output in self._output_params:
+                result_hook = output.get_result_hook(outputs, ctx, inputs=inputs)
+                if result_hook is not None:
+                    result_hooks.append(result_hook)
+        return result_hooks
+
     def item_tasks_json(self, ctx=None):
         spec = {
             'name': self.name,
