@@ -47,6 +47,27 @@ class GirderFileId(GirderClientTransform):
                       ignore_errors=True)
 
 
+class GirderFolderId(GirderClientTransform):
+    def __init__(self, _id, **kwargs):
+        super(GirderFolderId, self).__init__(**kwargs)
+        self.folder_id = _id
+
+    def _repr_model_(self):
+        return "{}('{}')".format(self.__class__.__name__, self.folder_id)
+
+    def transform(self):
+        self.folder_path = os.path.join(
+            tempfile.mkdtemp(), '{}'.format(self.folder_id))
+
+        self.gc.downloadFolderRecursive(self.folder_id, self.folder_path)
+
+        return self.folder_path
+
+    def cleanup(self):
+        shutil.rmtree(os.path.dirname(self.folder_path),
+                      ignore_errors=True)
+
+
 class GirderItemMetadata(GirderClientTransform):
     def __init__(self, _id, **kwargs):
         super(GirderItemMetadata, self).__init__(**kwargs)

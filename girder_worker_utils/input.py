@@ -49,6 +49,10 @@ class Input(Parameter):
                 raise BadParameter('Invalid input binding', ctx=ctx, param=self)
             value = binding['data']
 
+            if hasattr(self.type, 'resolve_item_tasks_binding'):
+                value = self.type.resolve_item_tasks_binding(
+                    value, param=self, ctx=ctx, bindings=bindings)
+
         if value is None:
             return {}
 

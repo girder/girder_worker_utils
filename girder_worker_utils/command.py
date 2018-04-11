@@ -53,6 +53,15 @@ class Command(click.Command):
 
             return ctx.invoke(self.callback, **kwargs)
 
+    def parse_inputs(self, bindings):
+        # similar to the above... should be deduped somehow
+        kwargs = {}
+        with self.make_context(self.name, [], resilient_parsing=True) as ctx:
+            for param in self._input_params:
+                kwargs.update(param.get_kwargs_from_input_bindings(bindings, ctx))
+
+        return [], kwargs
+
     def item_tasks_json(self, ctx=None):
         spec = {
             'name': self.name,
