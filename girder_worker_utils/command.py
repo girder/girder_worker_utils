@@ -57,6 +57,7 @@ class Command(click.Command):
         spec = {
             'name': self.name,
             'description': self.help or '',
+            'mode': 'girder_worker',
             'inputs': [],
             'outputs': []
         }
