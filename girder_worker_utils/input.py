@@ -45,9 +45,12 @@ class Input(Parameter):
         value = self.default
         if self.name in bindings:
             binding = bindings[self.name]
-            if not isinstance(binding, dict) or 'data' not in binding:
+            if not isinstance(binding, dict):
                 raise BadParameter('Invalid input binding', ctx=ctx, param=self)
-            value = binding['data']
+
+            value = binding
+            if binding.get('mode', 'inline') == 'inline':
+                value = binding['data']
 
             if hasattr(self.type, 'resolve_item_tasks_binding'):
                 value = self.type.resolve_item_tasks_binding(

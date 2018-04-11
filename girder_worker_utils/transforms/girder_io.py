@@ -47,6 +47,32 @@ class GirderFileId(GirderClientTransform):
                       ignore_errors=True)
 
 
+class GirderItemId(GirderClientTransform):
+    def __init__(self, _id, **kwargs):
+        super(GirderItemId, self).__init__(**kwargs)
+        self.item_id = _id
+
+    def _repr_model_(self):
+        return "{}('{}')".format(self.__class__.__name__, self.item_id)
+
+    def transform(self):
+        self.file_path = os.path.join(
+            tempfile.mkdtemp(), '{}'.format(self.item_id))
+
+        self.gc.downloadItem(self.item_id, self.file_path)
+
+        # TODO: this is bad, and i feel bad...
+        dirlist = os.listdir(self.file_path)
+        if len(dirlist) == 1:
+            return os.path.join(self.file_path, dirlist[0])
+
+        return self.file_path
+
+    def cleanup(self):
+        shutil.rmtree(os.path.dirname(self.file_path),
+                      ignore_errors=True)
+
+
 class GirderFolderId(GirderClientTransform):
     def __init__(self, _id, **kwargs):
         super(GirderFolderId, self).__init__(**kwargs)
