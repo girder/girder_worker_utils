@@ -88,3 +88,33 @@ class GirderUploadToItem(GirderClientResultTransform):
                 shutil.rmtree(self.output_file_path)
             else:
                 os.remove(self.output_file_path)
+
+
+class GirderUploadToFolder(GirderClientResultTransform):
+    def __init__(self, _id, delete_folder=False, upload_kwargs=None, **kwargs):
+        super(GirderUploadToFolder, self).__init__(**kwargs)
+        self.folder_id = _id
+        self.upload_kwargs = upload_kwargs or {}
+        self.delete_folder = delete_folder
+
+    def _repr_model_(self):
+        return "{}('{}')".format(self.__class__.__name__, self.folder_id)
+
+    def transform(self, path):
+        self.output_file_path = path
+        if os.path.isdir(path):
+            for f in os.listdir(path):
+                f = os.path.join(path, f)
+                if os.path.isfile(f):
+                    self.gc.uploadFileToFolder(self.folder_id, f, **self.upload_kwargs)
+        else:
+            self.gc.uploadFileToFolder(self.folder_id, path, **self.upload_kwargs)
+        return self.folder_id
+
+    def cleanup(self):
+        if self.delete_file is True:
+            if os.path.isdir(self.output_file_path):
+                shutil.rmtree(self.output_file_path)
+            else:
+                os.remove(self.output_file_path)
+
