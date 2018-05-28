@@ -91,11 +91,11 @@ class GirderUploadToItem(GirderClientResultTransform):
 
 
 class GirderUploadToFolder(GirderClientResultTransform):
-    def __init__(self, _id, delete_folder=False, upload_kwargs=None, **kwargs):
+    def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
         super(GirderUploadToFolder, self).__init__(**kwargs)
         self.folder_id = _id
         self.upload_kwargs = upload_kwargs or {}
-        self.delete_folder = delete_folder
+        self.delete_file = delete_file
 
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.folder_id)
@@ -117,4 +117,3 @@ class GirderUploadToFolder(GirderClientResultTransform):
                 shutil.rmtree(self.output_file_path)
             else:
                 os.remove(self.output_file_path)
-

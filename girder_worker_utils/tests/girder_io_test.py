@@ -42,6 +42,21 @@ def test_GirderUploadToItem_upload_directory(mock_gc):
     mock_gc.uploadFileToItem.assert_has_calls(calls, any_order=True)
 
 
+def test_GirderUploadToFolder_upload_file(mock_gc):
+    utf = girder_io.GirderUploadToFolder('the_id', gc=mock_gc, upload_kwargs={'reference': 'foo'})
+    assert utf.transform(FILE_PATH) == 'the_id'
+    mock_gc.uploadFileToFolder.assert_any_call('the_id', FILE_PATH, reference='foo')
+
+
+def test_GirderUploadToFolder_upload_directory(mock_gc):
+    utf = girder_io.GirderUploadToFolder('the_id', gc=mock_gc, upload_kwargs={'reference': 'foo'})
+    assert utf.transform(DIR_PATH) == 'the_id'
+
+    files = {'file1.txt', 'file2.txt'}
+    calls = [mock.call('the_id', os.path.join(DIR_PATH, f), reference='foo') for f in files]
+    mock_gc.uploadFileToFolder.assert_has_calls(calls, any_order=True)
+
+
 @pytest.mark.parametrize('should_delete', (True, False))
 def test_GirderUploadToItem_cleanup_file(mock_gc, mock_rm, mock_rmtree, should_delete):
     uti = girder_io.GirderUploadToItem('the_id', delete_file=should_delete, gc=mock_gc)
@@ -55,8 +70,9 @@ def test_GirderUploadToItem_cleanup_file(mock_gc, mock_rm, mock_rmtree, should_d
 
 
 @pytest.mark.parametrize('should_delete', (True, False))
-def test_GirderUploadToItem_cleanup_dir(mock_gc, mock_rm, mock_rmtree, should_delete):
-    uti = girder_io.GirderUploadToItem('the_id', delete_file=should_delete, gc=mock_gc)
+@pytest.mark.parametrize('obj', (girder_io.GirderUploadToFolder, girder_io.GirderUploadToItem))
+def test_GirderUploadToResource_cleanup_dir(mock_gc, mock_rm, mock_rmtree, should_delete, obj):
+    uti = obj('the_id', delete_file=should_delete, gc=mock_gc)
     uti.transform(DIR_PATH)
     uti.cleanup()
     if should_delete:
