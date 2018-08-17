@@ -122,7 +122,7 @@ class GirderUploadToFolder(GirderClientResultTransform):
 
 
 class GirderUploadJobArtifact(GirderClientResultTransform):
-    def __init__(self, job_id, **kwargs):
+    def __init__(self, job_id=None, **kwargs):
         super(GirderUploadJobArtifact, self).__init(**kwargs)
         self.job_id = job_id
 
@@ -139,6 +139,9 @@ class GirderUploadJobArtifact(GirderClientResultTransform):
             self.gc.post('job/%s/artifact?%s' % (self.job_id, qs), data=fh)
 
     def transform(self, path):
+        if self.job_id is None:
+            self.job_id = str(self.job['_id'])
+
         if os.path.isdir(path):
             for f in os.listdir(path):
                 f = os.path.join(path, f)
