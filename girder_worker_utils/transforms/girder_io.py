@@ -122,16 +122,17 @@ class GirderUploadToFolder(GirderClientResultTransform):
 
 
 class GirderUploadJobArtifact(GirderClientResultTransform):
-    def __init__(self, job_id=None, **kwargs):
-        super(GirderUploadJobArtifact, self).__init(**kwargs)
+    def __init__(self, job_id=None, name=None, **kwargs):
+        super(GirderUploadJobArtifact, self).__init__(**kwargs)
         self.job_id = job_id
+        self.name = name
 
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.job_id)
 
     def _upload_artifact(self, file):
         qs = urlencode({
-            'name': os.path.basename(file),
+            'name': self.name or os.path.basename(file),
             'size': os.stat(file).st_size,
             'mimeType': mimetypes.guess_type(file)[0]
         })
