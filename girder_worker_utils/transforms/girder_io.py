@@ -122,6 +122,14 @@ class GirderUploadToFolder(GirderClientResultTransform):
 
 
 class GirderUploadJobArtifact(GirderClientResultTransform):
+    """
+    This class can be used to upload a directory of files or a single file
+    as artifacts attached to a Girder job. These files are only uploaded
+    if they exist, so this is an optional output.
+
+    Currently, only a flat directory of files is supported; the transform does not
+    recurse through nested directories, though that may change in the future.
+    """
     def __init__(self, job_id=None, name=None, **kwargs):
         super(GirderUploadJobArtifact, self).__init__(**kwargs)
         self.job_id = job_id
