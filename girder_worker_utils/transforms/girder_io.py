@@ -138,9 +138,9 @@ class GirderUploadJobArtifact(GirderClientResultTransform):
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.job_id)
 
-    def _upload_artifact(self, file):
+    def _upload_artifact(self, file, name=None):
         qs = urlencode({
-            'name': self.name or os.path.basename(file),
+            'name': name or os.path.basename(file),
             'size': os.stat(file).st_size,
             'mimeType': mimetypes.guess_type(file)[0]
         })
@@ -157,4 +157,4 @@ class GirderUploadJobArtifact(GirderClientResultTransform):
                 if os.path.isfile(f):
                     self._upload_artifact(f)
         elif os.path.isfile(path):
-            self._upload_artifact(path)
+            self._upload_artifact(path, self.name)

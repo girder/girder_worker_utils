@@ -80,3 +80,19 @@ def test_GirderUploadToResource_cleanup_dir(mock_gc, mock_rm, mock_rmtree, shoul
     else:
         mock_rmtree.assert_not_called()
     mock_rm.assert_not_called()
+
+
+def test_GirderUploadJobArtifact(mock_gc):
+    t = girder_io.GirderUploadJobArtifact(job_id='123', name='hello', gc=mock_gc)
+    t.transform(FILE_PATH)
+    mock_gc.post.assert_called_once()
+    url = mock_gc.post.call_args[0][0]
+    assert 'job/123/artifact?' in url
+    assert 'name=hello' in url
+
+    mock_gc.reset_mock()
+    t.transform(DIR_PATH)
+    assert mock_gc.post.call_count == 2
+    urls = sorted(args[0][0] for args in mock_gc.post.call_args_list)
+    assert 'name=file1.txt' in urls[0]
+    assert 'name=file2.txt' in urls[1]
