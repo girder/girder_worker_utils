@@ -33,3 +33,6 @@ class ResultTransform(Transform):
     @abc.abstractmethod
     def transform(self, data):
         pass
+
+    def exception(self):
+        pass
