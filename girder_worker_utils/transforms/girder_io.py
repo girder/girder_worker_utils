@@ -1,8 +1,10 @@
+import mimetypes
 import os
 import shutil
 import tempfile
 
 from girder_client import GirderClient
+from six.moves.urllib.parse import urlencode
 
 from ..transform import ResultTransform, Transform
 
@@ -117,3 +119,42 @@ class GirderUploadToFolder(GirderClientResultTransform):
                 shutil.rmtree(self.output_file_path)
             else:
                 os.remove(self.output_file_path)
+
+
+class GirderUploadJobArtifact(GirderClientResultTransform):
+    """
+    This class can be used to upload a directory of files or a single file
+    as artifacts attached to a Girder job. These files are only uploaded
+    if they exist, so this is an optional output.
+
+    Currently, only a flat directory of files is supported; the transform does not
+    recurse through nested directories, though that may change in the future.
+    """
+    def __init__(self, job_id=None, name=None, **kwargs):
+        super(GirderUploadJobArtifact, self).__init__(**kwargs)
+        self.job_id = job_id
+        self.name = name
+
+    def _repr_model_(self):
+        return "{}('{}')".format(self.__class__.__name__, self.job_id)
+
+    def _upload_artifact(self, file, name=None):
+        qs = urlencode({
+            'name': name or os.path.basename(file),
+            'size': os.stat(file).st_size,
+            'mimeType': mimetypes.guess_type(file)[0]
+        })
+        with open(file, 'rb') as fh:
+            self.gc.post('job/%s/artifact?%s' % (self.job_id, qs), data=fh)
+
+    def transform(self, path):
+        if self.job_id is None:
+            self.job_id = str(self.job['_id'])
+
+        if os.path.isdir(path):
+            for f in os.listdir(path):
+                f = os.path.join(path, f)
+                if os.path.isfile(f):
+                    self._upload_artifact(f)
+        elif os.path.isfile(path):
+            self._upload_artifact(path, self.name)

@@ -11,6 +11,9 @@ Unreleased
 Added Features
 --------------
 
+* Added a new transform for uploading files to Girder jobs as artifacts.
+  `#26 <https://github.com/girder/girder_worker_utils/pull/26>`_.
+
 Bug fixes
 ---------
 

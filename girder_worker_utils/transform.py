@@ -25,6 +25,11 @@ class Transform(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class ResultTransform(Transform):
+    # This will be populated by the worker via the girder_before_task_publish hook,
+    # and it will point to the job that was created for this task. If no job was created
+    # for this task, this will remain `None`.
+    job = None
+
     @abc.abstractmethod
     def transform(self, data):
         pass
