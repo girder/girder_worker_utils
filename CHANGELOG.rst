@@ -11,12 +11,6 @@ Unreleased
 Added Features
 --------------
 
-* Added a new transform for uploading files to Girder jobs as artifacts.
-  `#26 <https://github.com/girder/girder_worker_utils/pull/26>`_.
-* Added a new hook to ResultTransforms to allow an action to be taken if an
-  exception occurred during the task.
-  `#27 <https://github.com/girder/girder_worker_utils/pull/27>`_.
-
 Bug fixes
 ---------
 
@@ -34,3 +28,15 @@ Removals
 
 Security Fixes
 --------------
+
+0.8.4
+=====
+
+Added Features
+--------------
+
+* Added a new transform for uploading files to Girder jobs as artifacts.
+  `#26 <https://github.com/girder/girder_worker_utils/pull/26>`_.
+* Added a new hook to ResultTransforms to allow an action to be taken if an
+  exception occurred during the task.
+  `#27 <https://github.com/girder/girder_worker_utils/pull/27>`_.
