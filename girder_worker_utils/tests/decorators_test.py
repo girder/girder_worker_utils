@@ -172,3 +172,140 @@ def test_unhandled_input_binding():
     arg = argument('arg', types.Integer)
     with pytest.raises(ValueError):
         decorators.get_input_data(arg, {})
+
+
+
+###########################
+
+
+import six
+
+from girder_worker_utils.decorators import parameter
+from girder_worker_utils.decorators import (
+    GWArgSpec,
+    Varargs,
+    Kwargs,
+    PosArg,
+    KWArg)
+
+
+def arg(a): pass # noqa
+def varargs(*args): pass # noqa
+def kwarg(a='test'): pass # noqa
+def kwargs(**kwargs): pass # noqa
+def arg_arg(a, b): pass # noqa
+def arg_varargs(a, *args): pass # noqa
+def arg_kwarg(a, b='test'): pass # noqa
+def arg_kwargs(a, **kwargs): pass # noqa
+def kwarg_varargs(a='test', *args): pass # noqa
+def kwarg_kwarg(a='testa', b='testb'): pass # noqa
+def kwarg_kwargs(a='test', **kwargs): pass # noqa
+def arg_kwarg_varargs(a, b='test', *args): pass # noqa
+def arg_kwarg_kwargs(a, b='test', **kwargs): pass # noqa
+def arg_kwarg_varargs_kwargs(a, b='test', *args, **kwargs): pass # noqa
+
+
+
+@pytest.mark.parametrize('func,classes', [
+    (arg, [PosArg]),
+    (varargs, [Varargs]),
+    (kwarg, [KWArg]),
+    (kwargs, [Kwargs]),
+    (arg_arg, [PosArg, PosArg]),
+    (arg_varargs, [PosArg, Varargs]),
+    (arg_kwarg, [PosArg, KWArg]),
+    (arg_kwargs, [PosArg, Kwargs]),
+    (kwarg_varargs, [KWArg, Varargs]),
+    (kwarg_kwarg, [KWArg, KWArg]),
+    (kwarg_kwargs, [KWArg, Kwargs]),
+    (arg_kwarg_varargs, [PosArg, KWArg, Varargs]),
+    (arg_kwarg_kwargs, [PosArg, KWArg, Kwargs]),
+    (arg_kwarg_varargs_kwargs, [PosArg, KWArg, Varargs, Kwargs])
+])
+def test_GWArgSpec_arguments_returns_expected_classes(func, classes):
+    spec = GWArgSpec(func)
+    assert len(spec.arguments) == len(classes)
+    for arg, cls in zip(spec.arguments, classes):
+        assert isinstance(arg, cls)
+
+
+no_varargs = [arg, kwarg, kwargs, arg_arg, arg_kwarg,
+              arg_kwargs, kwarg_kwarg, kwarg_kwargs,
+              arg_kwarg_kwargs]
+
+@pytest.mark.parametrize('func', no_varargs)
+def test_GWArgSpec_varargs_returns_None(func):
+    spec = GWArgSpec(func)
+    assert spec.varargs is None
+
+
+with_varargs = [varargs, arg_varargs, kwarg_varargs,
+                arg_kwarg_varargs, arg_kwarg_varargs_kwargs]
+
+@pytest.mark.parametrize('func', with_varargs)
+def test_GWArgSpec_varargs_returns_Vararg(func):
+    spec = GWArgSpec(func)
+    assert isinstance(spec.varargs, Varargs)
+
+
+@pytest.mark.parametrize('func,names', [
+    (arg, ["a"]),
+    (arg_arg, ["a", "b"]),
+    (arg_varargs, ["a"]),
+    (arg_kwarg, ["a"]),
+    (arg_kwargs, ["a"]),
+    (arg_kwarg_kwargs, ["a"]),
+    (arg_kwarg_varargs_kwargs, ["a"])
+])
+def test_GWArgSpec_positional_args_correct_names(func, names):
+    spec = GWArgSpec(func)
+    assert len(spec.positional_args) == len(names)
+    for p, n in zip(spec.positional_args, names):
+        assert isinstance(p, PosArg)
+        assert p.name == n
+
+
+# TODO positional_args returns None test
+
+@pytest.mark.parametrize('func,names', [
+    (kwarg, ['a']),
+    (arg_kwarg, ['b']),
+    (kwarg_varargs, ['a']),
+    (kwarg_kwarg, ['a', 'b']),
+    (kwarg_kwargs, ['a']),
+    (arg_kwarg_varargs, ['b']),
+    (arg_kwarg_kwargs, ['b']),
+    (arg_kwarg_varargs_kwargs, ['b']),
+])
+def test_GWArgSpec_keyword_args_correct_names(func, names):
+    spec = GWArgSpec(func)
+    assert len(spec.keyword_args) == len(names)
+    for p, n in zip(spec.keyword_args, names):
+        assert isinstance(p, KWArg)
+        assert p.name == n
+
+# TODO keyword_args returns None test
+@pytest.mark.parametrize('func,defaults', [
+    (kwarg, ['test']),
+    (arg_kwarg, ['test']),
+    (kwarg_varargs, ['test']),
+    (kwarg_kwarg, ['testa', 'testb']),
+    (kwarg_kwargs, ['test']),
+    (arg_kwarg_varargs, ['test']),
+    (arg_kwarg_kwargs, ['test']),
+    (arg_kwarg_varargs_kwargs, ['test']),
+])
+def test_GWArgSpec_keyword_args_have_defaults(func, defaults):
+    spec = GWArgSpec(func)
+    assert len(spec.keyword_args) == len(defaults)
+    for p, d in zip(spec.keyword_args, defaults):
+        assert hasattr(p, 'default')
+        assert p.default == d
+
+
+def test_parameter_decorator_adds_metadata():
+    @parameter('a', test='TEST')
+    def arg(a): pass # noqa
+
+    assert hasattr(arg._girder_spec['a'], 'test')
+    assert arg._girder_spec['a'].test == 'TEST'

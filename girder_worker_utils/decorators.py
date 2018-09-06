@@ -1,8 +1,9 @@
 from inspect import getdoc
 try:
-    from inspect import signature
+    from inspect import signature, Parameter
 except ImportError:  # pragma: nocover
-    from funcsigs import signature
+    from funcsigs import signature, Parameter
+
 import six
 
 
@@ -21,6 +22,161 @@ def get_description_attribute(func):
     if description is None:
         raise MissingDescriptionException('Function is missing description decorators')
     return description
+
+
+class Argument(object):
+    def __init__(self, name, **kwargs):
+        self.name = name
+        for k, v in six.iteritems(kwargs):
+            setattr(self, k, v)
+
+
+class KWArg(Argument):
+    def __init__(self, name, **kwargs):
+        super(KWArg, self).__init__(name, **kwargs)
+
+
+class PosArg(Argument):
+    def __init__(self, name, **kwargs):
+        super(PosArg, self).__init__(name, **kwargs)
+
+
+class Varargs(Argument):
+    def __init__(self, name, **kwargs):
+        super(Varargs, self).__init__(name, **kwargs)
+
+
+class Kwargs(Argument):
+    def __init__(self, name, **kwargs):
+        super(Kwargs, self).__init__(name, **kwargs)
+
+
+# class Return(Argument):
+#     def __init__(self, name, **kwargs):
+#         self.name = name
+#         for k, v in six.iteritems(kwargs):
+#             setattr(self, k, v)
+
+
+class GWArgSpec(object):
+    _parameter_repr = ['POSITIONAL_ONLY',
+                       'POSITIONAL_OR_KEYWORD',
+                       'VAR_POSITIONAL',
+                       'KEYWORD_ONLY',
+                       'VAR_KEYWORD']
+
+    def __init__(self, func):
+        self._metadata = {}
+        self._signature = signature(func)
+
+    def __repr__(self):
+        # TODO - make less ugly
+        return "<{}(".format(self.__class__.__name__) + ", ".join(["{}:{}".format(
+            name, self._parameter_repr[self._signature.parameters[name].kind])
+            for name in self._signature.parameters]) + ")>"
+
+    def __getitem__(self, key):
+        return self._construct_argument(
+            self._get_class(self._signature.parameters[key]), key)
+
+    def _construct_argument(self, cls, name, **kwargs):
+        p = self._signature.parameters[name]
+        metadata = {}
+
+        if p.default != p.empty:
+            metadata['default'] = p.default
+        if p.annotation != p.empty:
+            # TODO: make sure annotation is a type and not just garbage
+            metadata['data_type'] = p.annotation
+
+        metadata.update(self._metadata.get(name, {}))
+
+        return cls(name, **metadata)
+
+    def _is_varargs(self, p):
+        return p.kind == Parameter.VAR_POSITIONAL
+
+    def _is_kwargs(self, p):
+        return p.kind == Parameter.VAR_KEYWORD
+
+    def _is_kwarg(self, p):
+        return p.kind == Parameter.KEYWORD_ONLY or (
+            p.kind == Parameter.POSITIONAL_OR_KEYWORD and p.default != p.empty)
+
+    def _is_posarg(self, p):
+        return p.kind == Parameter.POSITIONAL_ONLY or (
+            p.kind == Parameter.POSITIONAL_OR_KEYWORD and p.default == p.empty)
+
+    def _get_class(self, p):
+        if self._is_varargs(p):
+            return Varargs
+        elif self._is_kwargs(p):
+            return Kwargs
+        elif self._is_posarg(p):
+            return PosArg
+        elif self._is_kwarg(p):
+            return KWArg
+        else:
+            raise RuntimeError("Could not determine parameter type!")
+
+    def set_metadata(self, name, key, value):
+        if name not in self._signature.parameters:
+            raise RuntimeError("{} is not a valid argument to this function!")
+
+        if name not in self._metadata:
+            self._metadata[name] = {}
+
+        self._metadata[name][key] = value
+
+
+    @property
+    def arguments(self):
+        return [
+            self._construct_argument(
+                self._get_class(self._signature.parameters[name]), name)
+            for name in self._signature.parameters]
+
+    @property
+    def varargs(self):
+        for name in self._signature.parameters:
+            if self._is_varargs(self._signature.parameters[name]):
+                return self._construct_argument(Varargs, name)
+        return None
+
+    @property
+    def kwargs(self):
+        for name in self._signature.parameters:
+            if self._is_kwargs(self._signature.parameters[name]):
+                return self._construct_argument(Kwargs, name)
+        return None
+
+    @property
+    def positional_args(self):
+        return [arg for arg in self.arguments if isinstance(arg, PosArg)]
+
+    @property
+    def keyword_args(self):
+        return [arg for arg in self.arguments if isinstance(arg, KWArg)]
+
+
+def parameter(name, **kwargs):
+    if not isinstance(name, six.string_types):
+        raise TypeError('Expected argument name to be a string')
+
+    data_type = kwargs.get("data_type", None)
+    if data_type is not None and callable(data_type):
+        kwargs['data_type'] = data_type(name, **kwargs)
+
+    def argument_wrapper(func):
+        if not hasattr(func, "_girder_spec"):
+            func._girder_spec = GWArgSpec(func)
+
+            for key, value in six.iteritems(kwargs):
+                func._girder_spec.set_metadata(name, key, value)
+
+        return func
+
+    return argument_wrapper
 
 
 def argument(name, data_type, *args, **kwargs):
