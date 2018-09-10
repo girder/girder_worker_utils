@@ -1,4 +1,4 @@
-from inspect import getdoc
+from inspect import getdoc, cleandoc
 try:
     from inspect import signature, Parameter
 except ImportError:  # pragma: nocover
@@ -17,8 +17,8 @@ class MissingInputException(Exception):
 
 def get_description_attribute(func):
     """Get the private description attribute from a function."""
-    func = getattr(func, 'run', func)
-    description = getattr(func, '_girder_description', None)
+    # func = getattr(func, 'run', func)
+    description = getattr(func, GWFuncDesc._func_desc_attr, None)
     if description is None:
         raise MissingDescriptionException('Function is missing description decorators')
     return description
@@ -30,42 +30,44 @@ class Argument(object):
         for k, v in six.iteritems(kwargs):
             setattr(self, k, v)
 
-
-class KWArg(Argument):
-    def __init__(self, name, **kwargs):
-        super(KWArg, self).__init__(name, **kwargs)
-
-
-class PosArg(Argument):
-    def __init__(self, name, **kwargs):
-        super(PosArg, self).__init__(name, **kwargs)
+# No default value for this argument
+class Arg(Argument): pass
+# Has a default argument for the value
+class KWArg(Argument):  pass
+class Varargs(Argument): pass
+class Kwargs(Argument): pass
+# class Return(Argument): pass
 
 
-class Varargs(Argument):
-    def __init__(self, name, **kwargs):
-        super(Varargs, self).__init__(name, **kwargs)
+def _clean_function_doc(f):
+    doc = getdoc(f) or ''
+    if isinstance(doc, bytes):
+        doc = doc.decode('utf-8')
+    else:
+        doc = cleandoc(doc)
+    return doc
 
 
-class Kwargs(Argument):
-    def __init__(self, name, **kwargs):
-        super(Kwargs, self).__init__(name, **kwargs)
-
-
-# class Return(Argument):
-#     def __init__(self, name, **kwargs):
-#         self.name = name
-#         for k, v in six.iteritems(kwargs):
-#             setattr(self, k, v)
-
-
-class GWArgSpec(object):
+class GWFuncDesc(object):
+    _func_desc_attr = "_gw_function_description"
     _parameter_repr = ['POSITIONAL_ONLY',
                        'POSITIONAL_OR_KEYWORD',
                        'VAR_POSITIONAL',
                        'KEYWORD_ONLY',
                        'VAR_KEYWORD']
 
+    @classmethod
+    def get_description(cls, func):
+        # HACK - potentially unwrap celery task
+        # func = getattr(func, 'run', func)
+        if hasattr(func, cls._func_desc_attr) and \
+           isinstance(getattr(func, cls._func_desc_attr), cls):
+            return getattr(func, cls._func_desc_attr)
+        return None
+
     def __init__(self, func):
+        self.func_name = func.__name__
+        self.func_help = _clean_function_doc(func)
         self._metadata = {}
         self._signature = signature(func)
 
@@ -113,11 +115,12 @@ class GWArgSpec(object):
         elif self._is_kwargs(p):
             return Kwargs
         elif self._is_posarg(p):
-            return PosArg
+            return Arg
         elif self._is_kwarg(p):
             return KWArg
         else:
             raise RuntimeError("Could not determine parameter type!")
+
 
     def set_metadata(self, name, key, value):
         if name not in self._signature.parameters:
@@ -128,31 +131,36 @@ class GWArgSpec(object):
 
         self._metadata[name][key] = value
 
-
     @property
     def arguments(self):
+        # Only return arguments if we've declared them as paramaters
+        # This prevents us from returning things like 'self' of bound
+        # methods (e.g. celery tasks) etc.  This is a dubious design
+        # decision.
         return [
             self._construct_argument(
                 self._get_class(self._signature.parameters[name]), name)
-            for name in self._signature.parameters]
+            for name in self._signature.parameters if name in self._metadata]
 
     @property
     def varargs(self):
         for name in self._signature.parameters:
-            if self._is_varargs(self._signature.parameters[name]):
+            if name in self._metadata and \
+               self._is_varargs(self._signature.parameters[name]):
                 return self._construct_argument(Varargs, name)
         return None
 
     @property
     def kwargs(self):
         for name in self._signature.parameters:
-            if self._is_kwargs(self._signature.parameters[name]):
+            if name in self._metadata and \
+               self._is_kwargs(self._signature.parameters[name]):
                 return self._construct_argument(Kwargs, name)
         return None
 
     @property
     def positional_args(self):
-        return [arg for arg in self.arguments if isinstance(arg, PosArg)]
+        return [arg for arg in self.arguments if isinstance(arg, Arg)]
 
     @property
     def keyword_args(self):
@@ -168,11 +176,25 @@ def parameter(name, **kwargs):
         kwargs['data_type'] = data_type(name, **kwargs)
 
     def argument_wrapper(func):
-        if not hasattr(func, "_girder_spec"):
-            func._girder_spec = GWArgSpec(func)
+        if not hasattr(func, GWFuncDesc._func_desc_attr):
+            setattr(func, GWFuncDesc._func_desc_attr, GWFuncDesc(func))
 
-            for key, value in six.iteritems(kwargs):
-                func._girder_spec.set_metadata(name, key, value)
+        desc = getattr(func, GWFuncDesc._func_desc_attr)
+
+        # Make sure the metadata key exists even if we don't set any
+        # values on it.  This ensures that metadata's keys represent
+        # the full list of parameters that have been identified by the
+        # user (even if there is no actual metadata associated with
+        # the argument).
+        desc._metadata[name] = {}
+
+        for key, value in six.iteritems(kwargs):
+            desc.set_metadata(name, key, value)
+
+        def description():
+            return getattr(func, GWFuncDesc._func_desc_attr)
+
+        func.description = description
 
         return func
 
@@ -194,8 +216,10 @@ def argument(name, data_type, *args, **kwargs):
         data_type = data_type(name, *args, **kwargs)
 
     def argument_wrapper(func):
-        func._girder_description = getattr(func, '_girder_description', {})
-        args = func._girder_description.setdefault('arguments', [])
+        setattr(func, GWFuncDesc._func_desc_attr,
+                getattr(func, GWFuncDesc._func_desc_attr, {}))
+
+        args = getattr(func, GWFuncDesc._func_desc_attr).setdefault('arguments', [])
         sig = signature(func)
 
         if name not in sig.parameters:

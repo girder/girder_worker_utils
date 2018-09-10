@@ -182,10 +182,10 @@ import six
 
 from girder_worker_utils.decorators import parameter
 from girder_worker_utils.decorators import (
-    GWArgSpec,
+    GWFuncDesc,
     Varargs,
     Kwargs,
-    PosArg,
+    Arg,
     KWArg)
 
 
@@ -207,23 +207,23 @@ def arg_kwarg_varargs_kwargs(a, b='test', *args, **kwargs): pass # noqa
 
 
 @pytest.mark.parametrize('func,classes', [
-    (arg, [PosArg]),
+    (arg, [Arg]),
     (varargs, [Varargs]),
     (kwarg, [KWArg]),
     (kwargs, [Kwargs]),
-    (arg_arg, [PosArg, PosArg]),
-    (arg_varargs, [PosArg, Varargs]),
-    (arg_kwarg, [PosArg, KWArg]),
-    (arg_kwargs, [PosArg, Kwargs]),
+    (arg_arg, [Arg, Arg]),
+    (arg_varargs, [Arg, Varargs]),
+    (arg_kwarg, [Arg, KWArg]),
+    (arg_kwargs, [Arg, Kwargs]),
     (kwarg_varargs, [KWArg, Varargs]),
     (kwarg_kwarg, [KWArg, KWArg]),
     (kwarg_kwargs, [KWArg, Kwargs]),
-    (arg_kwarg_varargs, [PosArg, KWArg, Varargs]),
-    (arg_kwarg_kwargs, [PosArg, KWArg, Kwargs]),
-    (arg_kwarg_varargs_kwargs, [PosArg, KWArg, Varargs, Kwargs])
+    (arg_kwarg_varargs, [Arg, KWArg, Varargs]),
+    (arg_kwarg_kwargs, [Arg, KWArg, Kwargs]),
+    (arg_kwarg_varargs_kwargs, [Arg, KWArg, Varargs, Kwargs])
 ])
-def test_GWArgSpec_arguments_returns_expected_classes(func, classes):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_arguments_returns_expected_classes(func, classes):
+    spec = GWFuncDesc(func)
     assert len(spec.arguments) == len(classes)
     for arg, cls in zip(spec.arguments, classes):
         assert isinstance(arg, cls)
@@ -234,8 +234,8 @@ no_varargs = [arg, kwarg, kwargs, arg_arg, arg_kwarg,
               arg_kwarg_kwargs]
 
 @pytest.mark.parametrize('func', no_varargs)
-def test_GWArgSpec_varargs_returns_None(func):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_varargs_returns_None(func):
+    spec = GWFuncDesc(func)
     assert spec.varargs is None
 
 
@@ -243,8 +243,8 @@ with_varargs = [varargs, arg_varargs, kwarg_varargs,
                 arg_kwarg_varargs, arg_kwarg_varargs_kwargs]
 
 @pytest.mark.parametrize('func', with_varargs)
-def test_GWArgSpec_varargs_returns_Vararg(func):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_varargs_returns_Vararg(func):
+    spec = GWFuncDesc(func)
     assert isinstance(spec.varargs, Varargs)
 
 
@@ -257,11 +257,11 @@ def test_GWArgSpec_varargs_returns_Vararg(func):
     (arg_kwarg_kwargs, ["a"]),
     (arg_kwarg_varargs_kwargs, ["a"])
 ])
-def test_GWArgSpec_positional_args_correct_names(func, names):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_positional_args_correct_names(func, names):
+    spec = GWFuncDesc(func)
     assert len(spec.positional_args) == len(names)
     for p, n in zip(spec.positional_args, names):
-        assert isinstance(p, PosArg)
+        assert isinstance(p, Arg)
         assert p.name == n
 
 
@@ -277,8 +277,8 @@ def test_GWArgSpec_positional_args_correct_names(func, names):
     (arg_kwarg_kwargs, ['b']),
     (arg_kwarg_varargs_kwargs, ['b']),
 ])
-def test_GWArgSpec_keyword_args_correct_names(func, names):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_keyword_args_correct_names(func, names):
+    spec = GWFuncDesc(func)
     assert len(spec.keyword_args) == len(names)
     for p, n in zip(spec.keyword_args, names):
         assert isinstance(p, KWArg)
@@ -295,8 +295,8 @@ def test_GWArgSpec_keyword_args_correct_names(func, names):
     (arg_kwarg_kwargs, ['test']),
     (arg_kwarg_varargs_kwargs, ['test']),
 ])
-def test_GWArgSpec_keyword_args_have_defaults(func, defaults):
-    spec = GWArgSpec(func)
+def test_GWFuncDesc_keyword_args_have_defaults(func, defaults):
+    spec = GWFuncDesc(func)
     assert len(spec.keyword_args) == len(defaults)
     for p, d in zip(spec.keyword_args, defaults):
         assert hasattr(p, 'default')
@@ -305,7 +305,8 @@ def test_GWArgSpec_keyword_args_have_defaults(func, defaults):
 
 def test_parameter_decorator_adds_metadata():
     @parameter('a', test='TEST')
-    def arg(a): pass # noqa
+    def arg(a):
+        pass
 
     assert hasattr(arg._girder_spec['a'], 'test')
     assert arg._girder_spec['a'].test == 'TEST'
