@@ -29,6 +29,13 @@ class GirderClientResultTransform(ResultTransform, GirderClientTransform):
 
 
 class GirderFileId(GirderClientTransform):
+    """
+    This transform downloads a Girder File to the local machine and passes its
+    local path into the function.
+
+    :param _id: The ID of the file to download.
+    :type _id: str
+    """
     def __init__(self, _id, **kwargs):
         super(GirderFileId, self).__init__(**kwargs)
         self.file_id = _id
@@ -64,6 +71,17 @@ class GirderItemMetadata(GirderClientTransform):
 
 
 class GirderUploadToItem(GirderClientResultTransform):
+    """
+    This is a result hook transform that uploads a file or flat directory of files
+    to an item in Girder.
+
+    :param _id: The ID of the item to upload into.
+    :type _id: str
+    :param delete_file: Whether to delete the local data afterward
+    :type delete_file: bool
+    :param upload_kwargs: Additional kwargs to pass to the upload method.
+    :type upload_kwargs: dict
+    """
     def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
         super(GirderUploadToItem, self).__init__(**kwargs)
         self.item_id = _id
@@ -93,6 +111,17 @@ class GirderUploadToItem(GirderClientResultTransform):
 
 
 class GirderUploadToFolder(GirderClientResultTransform):
+    """
+    This is a result hook transform that uploads a file or directory recursively
+    to a folder in Girder.
+
+    :param _id: The ID of the folder to upload into.
+    :type _id: str
+    :param delete_file: Whether to delete the local data afterward
+    :type delete_file: bool
+    :param upload_kwargs: Additional kwargs to pass to the upload method.
+    :type upload_kwargs: dict
+    """
     def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
         super(GirderUploadToFolder, self).__init__(**kwargs)
         self.folder_id = _id
@@ -129,6 +158,11 @@ class GirderUploadJobArtifact(GirderClientResultTransform):
 
     Currently, only a flat directory of files is supported; the transform does not
     recurse through nested directories, though that may change in the future.
+
+    :param job_id: The ID of the job to attach the file(s) to.
+    :type job_id: str or ObjectId
+    :param name: Name for the artifact (only if it's a single file).
+    :type name: str
     """
     def __init__(self, job_id=None, name=None, **kwargs):
         super(GirderUploadJobArtifact, self).__init__(**kwargs)
