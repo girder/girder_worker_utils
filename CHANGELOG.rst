@@ -11,6 +11,9 @@ Unreleased
 Added Features
 --------------
 
+* Added a transform for uploading a file or directory into a folder in Girder
+  (`#23 <https://github.com/girder/girder_worker_utils/pull/23>`_).
+
 Bug fixes
 ---------
 
