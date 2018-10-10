@@ -302,7 +302,7 @@ def test_GWFuncDesc_keyword_args_have_defaults(func, defaults):
         assert hasattr(p, 'default')
         assert p.default == d
 
-
+@pytest.mark.skip("Fix this to use API for accessing argument spec rather than using 'private' attribute")
 def test_parameter_decorator_adds_metadata():
     @parameter('a', test='TEST')
     def arg(a):

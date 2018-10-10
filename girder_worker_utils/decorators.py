@@ -140,21 +140,19 @@ class GWFuncDesc(object):
         return [
             self._construct_argument(
                 self._get_class(self._signature.parameters[name]), name)
-            for name in self._signature.parameters if name in self._metadata]
+            for name in self._signature.parameters]
 
     @property
     def varargs(self):
         for name in self._signature.parameters:
-            if name in self._metadata and \
-               self._is_varargs(self._signature.parameters[name]):
+            if self._is_varargs(self._signature.parameters[name]):
                 return self._construct_argument(Varargs, name)
         return None
 
     @property
     def kwargs(self):
         for name in self._signature.parameters:
-            if name in self._metadata and \
-               self._is_kwargs(self._signature.parameters[name]):
+            if self._is_kwargs(self._signature.parameters[name]):
                 return self._construct_argument(Kwargs, name)
         return None
 
