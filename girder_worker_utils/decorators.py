@@ -47,6 +47,9 @@ class Varargs(Argument):
 
 class Kwargs(Argument):
     pass
+
+# TODO: is there anything we want to try and do with the functions
+# annotated return value?
 # class Return(Argument): pass
 
 
@@ -67,12 +70,22 @@ class GWFuncDesc(object):
 
     @classmethod
     def get_description(cls, func):
-        # HACK - potentially unwrap celery task
-        # func = getattr(func, 'run', func)
-        if hasattr(func, cls._func_desc_attr) and \
+        if cls.has_description(func) and \
            isinstance(getattr(func, cls._func_desc_attr), cls):
             return getattr(func, cls._func_desc_attr)
         return None
+
+    @classmethod
+    def has_description(cls, func):
+        return hasattr(func, cls._func_desc_attr)
+
+    @classmethod
+    def set_description(cls, func):
+        setattr(func, GWFuncDesc._func_desc_attr, cls(func))
+        return None
+
+
+
 
     def __init__(self, func):
         self.func_name = func.__name__
@@ -181,10 +194,10 @@ def parameter(name, **kwargs):
         kwargs['data_type'] = data_type(name, **kwargs)
 
     def argument_wrapper(func):
-        if not hasattr(func, GWFuncDesc._func_desc_attr):
-            setattr(func, GWFuncDesc._func_desc_attr, GWFuncDesc(func))
+        if not GWFuncDesc.has_description(func):
+            GWFuncDesc.set_description(func)
 
-        desc = getattr(func, GWFuncDesc._func_desc_attr)
+        desc = GWFuncDesc.get_description(func)
 
         # Make sure the metadata key exists even if we don't set any
         # values on it.  This ensures that metadata's keys represent

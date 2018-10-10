@@ -298,12 +298,15 @@ def test_GWFuncDesc_keyword_args_have_defaults(func, defaults):
         assert p.default == d
 
 
-@pytest.mark.skip("Fix this to use API for accessing argument "
-                  "spec rather than using 'private' attribute")
 def test_parameter_decorator_adds_metadata():
     @parameter('a', test='TEST')
     def arg(a):
         pass
 
-    assert hasattr(arg._girder_spec['a'], 'test')
-    assert arg._girder_spec['a'].test == 'TEST'
+    desc = GWFuncDesc.get_description(arg)
+
+    assert hasattr(desc.arguments[0], 'test')
+    assert desc.arguments[0].test == 'TEST'
+
+
+# TODO more tests around other argument types (e.g. kwargs varargs etc)
