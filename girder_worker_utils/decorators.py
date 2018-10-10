@@ -1,4 +1,4 @@
-from inspect import getdoc, cleandoc
+from inspect import getdoc
 try:
     from inspect import signature, Parameter
 except ImportError:  # pragma: nocover
@@ -30,12 +30,23 @@ class Argument(object):
         for k, v in six.iteritems(kwargs):
             setattr(self, k, v)
 
+
 # No default value for this argument
-class Arg(Argument): pass
+class Arg(Argument):
+    pass
+
+
 # Has a default argument for the value
-class KWArg(Argument):  pass
-class Varargs(Argument): pass
-class Kwargs(Argument): pass
+class KWArg(Argument):
+    pass
+
+
+class Varargs(Argument):
+    pass
+
+
+class Kwargs(Argument):
+    pass
 # class Return(Argument): pass
 
 
@@ -43,8 +54,6 @@ def _clean_function_doc(f):
     doc = getdoc(f) or ''
     if isinstance(doc, bytes):
         doc = doc.decode('utf-8')
-    else:
-        doc = cleandoc(doc)
     return doc
 
 
@@ -81,7 +90,7 @@ class GWFuncDesc(object):
         return self._construct_argument(
             self._get_class(self._signature.parameters[key]), key)
 
-    def _construct_argument(self, cls, name, **kwargs):
+    def _construct_argument(self, parameter_cls, name):
         p = self._signature.parameters[name]
         metadata = {}
 
@@ -93,7 +102,7 @@ class GWFuncDesc(object):
 
         metadata.update(self._metadata.get(name, {}))
 
-        return cls(name, **metadata)
+        return parameter_cls(name, **metadata)
 
     def _is_varargs(self, p):
         return p.kind == Parameter.VAR_POSITIONAL
@@ -121,22 +130,20 @@ class GWFuncDesc(object):
         else:
             raise RuntimeError("Could not determine parameter type!")
 
+    def init_metadata(self, name):
+        if name not in self._metadata:
+            self._metadata[name] = {}
 
     def set_metadata(self, name, key, value):
         if name not in self._signature.parameters:
             raise RuntimeError("{} is not a valid argument to this function!")
 
-        if name not in self._metadata:
-            self._metadata[name] = {}
+        self.init_metadata(name)
 
         self._metadata[name][key] = value
 
     @property
     def arguments(self):
-        # Only return arguments if we've declared them as paramaters
-        # This prevents us from returning things like 'self' of bound
-        # methods (e.g. celery tasks) etc.  This is a dubious design
-        # decision.
         return [
             self._construct_argument(
                 self._get_class(self._signature.parameters[name]), name)
@@ -170,7 +177,7 @@ def parameter(name, **kwargs):
         raise TypeError('Expected argument name to be a string')
 
     data_type = kwargs.get("data_type", None)
-    if data_type is not None and callable(data_type):
+    if callable(data_type):
         kwargs['data_type'] = data_type(name, **kwargs)
 
     def argument_wrapper(func):
@@ -184,7 +191,7 @@ def parameter(name, **kwargs):
         # the full list of parameters that have been identified by the
         # user (even if there is no actual metadata associated with
         # the argument).
-        desc._metadata[name] = {}
+        desc.init_metadata(name)
 
         for key, value in six.iteritems(kwargs):
             desc.set_metadata(name, key, value)

@@ -2,7 +2,14 @@ import pytest
 
 from girder_worker_utils import decorators
 from girder_worker_utils import types
-from girder_worker_utils.decorators import argument
+from girder_worker_utils.decorators import (
+    argument,
+    parameter,
+    GWFuncDesc,
+    Varargs,
+    Kwargs,
+    Arg,
+    KWArg)
 
 
 @argument('n', types.Integer, help='The element to return')
@@ -173,21 +180,7 @@ def test_unhandled_input_binding():
     with pytest.raises(ValueError):
         decorators.get_input_data(arg, {})
 
-
-
 ###########################
-
-
-import six
-
-from girder_worker_utils.decorators import parameter
-from girder_worker_utils.decorators import (
-    GWFuncDesc,
-    Varargs,
-    Kwargs,
-    Arg,
-    KWArg)
-
 
 def arg(a): pass # noqa
 def varargs(*args): pass # noqa
@@ -203,7 +196,6 @@ def kwarg_kwargs(a='test', **kwargs): pass # noqa
 def arg_kwarg_varargs(a, b='test', *args): pass # noqa
 def arg_kwarg_kwargs(a, b='test', **kwargs): pass # noqa
 def arg_kwarg_varargs_kwargs(a, b='test', *args, **kwargs): pass # noqa
-
 
 
 @pytest.mark.parametrize('func,classes', [
@@ -233,6 +225,7 @@ no_varargs = [arg, kwarg, kwargs, arg_arg, arg_kwarg,
               arg_kwargs, kwarg_kwarg, kwarg_kwargs,
               arg_kwarg_kwargs]
 
+
 @pytest.mark.parametrize('func', no_varargs)
 def test_GWFuncDesc_varargs_returns_None(func):
     spec = GWFuncDesc(func)
@@ -241,6 +234,7 @@ def test_GWFuncDesc_varargs_returns_None(func):
 
 with_varargs = [varargs, arg_varargs, kwarg_varargs,
                 arg_kwarg_varargs, arg_kwarg_varargs_kwargs]
+
 
 @pytest.mark.parametrize('func', with_varargs)
 def test_GWFuncDesc_varargs_returns_Vararg(func):
@@ -284,6 +278,7 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
         assert isinstance(p, KWArg)
         assert p.name == n
 
+
 # TODO keyword_args returns None test
 @pytest.mark.parametrize('func,defaults', [
     (kwarg, ['test']),
@@ -302,7 +297,9 @@ def test_GWFuncDesc_keyword_args_have_defaults(func, defaults):
         assert hasattr(p, 'default')
         assert p.default == d
 
-@pytest.mark.skip("Fix this to use API for accessing argument spec rather than using 'private' attribute")
+
+@pytest.mark.skip("Fix this to use API for accessing argument "
+                  "spec rather than using 'private' attribute")
 def test_parameter_decorator_adds_metadata():
     @parameter('a', test='TEST')
     def arg(a):

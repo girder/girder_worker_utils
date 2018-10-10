@@ -1,17 +1,18 @@
 import pytest
-import six
 from girder_worker_utils.decorators import (
     GWFuncDesc,
     Varargs,
-    Kwargs,
+    #    Kwargs,
     Arg,
     KWArg)
 
-def arg_varargs_kwarg(a, *args, b='test'): pass
-def arg_varargs_kwarg_no_default(a, *args, b): pass
-def arg_emptyvarargs_kwarg(a, *, b='test'): pass
-def arg_emptyvarargs_kwarg_no_default(a, *, b): pass
-def arg_with_annotation(a: int): pass
+# TODO write Kwargs test
+
+def arg_varargs_kwarg(a, *args, b='test'): pass  # noqa
+def arg_varargs_kwarg_no_default(a, *args, b): pass # noqa
+def arg_emptyvarargs_kwarg(a, *, b='test'): pass # noqa
+def arg_emptyvarargs_kwarg_no_default(a, *, b): pass # noqa
+def arg_with_annotation(a: int): pass # noqa
 
 
 @pytest.mark.parametrize('func,classes', [
@@ -79,6 +80,7 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
 
 # TODO keyword_args returns None test
 
+
 @pytest.mark.parametrize('func,defaults', [
     (arg_varargs_kwarg, ['test']),
     (arg_emptyvarargs_kwarg, ['test'])
@@ -89,6 +91,7 @@ def test_GWFuncDesc_keyword_args_have_defaults(func, defaults):
     for p, d in zip(spec.keyword_args, defaults):
         assert hasattr(p, 'default')
         assert p.default == d
+
 
 @pytest.mark.parametrize('func', [
     arg_varargs_kwarg_no_default,
