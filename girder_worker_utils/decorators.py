@@ -84,9 +84,6 @@ class GWFuncDesc(object):
         setattr(func, GWFuncDesc._func_desc_attr, cls(func))
         return None
 
-
-
-
     def __init__(self, func):
         self.func_name = func.__name__
         self.func_help = _clean_function_doc(func)
@@ -94,10 +91,12 @@ class GWFuncDesc(object):
         self._signature = signature(func)
 
     def __repr__(self):
-        # TODO - make less ugly
-        return "<{}(".format(self.__class__.__name__) + ", ".join(["{}:{}".format(
-            name, self._parameter_repr[self._signature.parameters[name].kind])
-            for name in self._signature.parameters]) + ")>"
+        parameters = []
+        for name in self._signature.parameters:
+            kind = self._signature.parameters[name].kind
+            parameters.append("{}:{}".format(name, self._parameter_repr[kind]))
+
+        return "<{}(".format(self.__class__.__name__) + ", ".join(parameters) + ")>"
 
     def __getitem__(self, key):
         return self._construct_argument(
