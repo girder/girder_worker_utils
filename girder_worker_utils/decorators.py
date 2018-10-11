@@ -209,11 +209,6 @@ def parameter(name, **kwargs):
         for key, value in six.iteritems(kwargs):
             desc.set_metadata(name, key, value)
 
-        def description():
-            return getattr(func, GWFuncDesc._func_desc_attr)
-
-        func.description = description
-
         return func
 
     return argument_wrapper
