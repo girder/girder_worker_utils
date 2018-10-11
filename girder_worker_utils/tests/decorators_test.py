@@ -259,7 +259,14 @@ def test_GWFuncDesc_positional_args_correct_names(func, names):
         assert p.name == n
 
 
-# TODO positional_args returns None test
+@pytest.mark.parametrize('func', [
+    varargs, kwarg, kwargs, kwarg_varargs,
+    kwarg_kwarg, kwarg_kwargs
+])
+def test_GWFuncDesc_positional_args_returns_empty_list_if_no_positional_args(func):
+    spec = GWFuncDesc(func)
+    assert len(spec.positional_args) == 0
+
 
 @pytest.mark.parametrize('func,names', [
     (kwarg, ['a']),
@@ -279,7 +286,14 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
         assert p.name == n
 
 
-# TODO keyword_args returns None test
+@pytest.mark.parametrize('func', [
+    arg, varargs, kwargs, arg_arg, arg_varargs, arg_kwargs
+])
+def test_GWFuncDesc_keyword_args_returns_empty_list_if_no_keyword_args(func):
+    spec = GWFuncDesc(func)
+    assert len(spec.keyword_args) == 0
+
+
 @pytest.mark.parametrize('func,defaults', [
     (kwarg, ['test']),
     (arg_kwarg, ['test']),

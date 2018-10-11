@@ -1,12 +1,11 @@
 import pytest
+
 from girder_worker_utils.decorators import (
     GWFuncDesc,
     Varargs,
-    #    Kwargs,
     Arg,
     KWArg)
 
-# TODO write Kwargs test
 
 def arg_varargs_kwarg(a, *args, b='test'): pass  # noqa
 def arg_varargs_kwarg_no_default(a, *args, b): pass # noqa
@@ -63,8 +62,6 @@ def test_GWFuncDesc_positional_args_correct_names(func, names):
         assert p.name == n
 
 
-# TODO positional_args returns None test
-
 @pytest.mark.parametrize('func,names', [
     (arg_varargs_kwarg, ['b']),
     (arg_varargs_kwarg_no_default, ['b']),
@@ -77,8 +74,6 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
     for p, n in zip(spec.keyword_args, names):
         assert isinstance(p, KWArg)
         assert p.name == n
-
-# TODO keyword_args returns None test
 
 
 @pytest.mark.parametrize('func,defaults', [
