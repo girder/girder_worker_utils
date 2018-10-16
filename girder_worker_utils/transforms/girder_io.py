@@ -15,8 +15,21 @@ class GirderClientTransform(Transform):
 
         try:
             if gc is None:
-                from girder.api.rest import getApiUrl, getCurrentToken
-                self.gc = GirderClient(apiUrl=getApiUrl())
+                # We need to resolve Girder's API URL, but girder_worker can
+                # specify a different value than what Girder gets from a rest
+                # request.
+                # Girder 3
+                try:
+                    from girder_worker.girder_plugin.utils import getWorkerApiUrl
+                except ImportError:
+                    # Girder 2
+                    try:
+                        from girder.plugins.worker.utils import getWorkerApiUrl
+                    # Fall back if the worker plugin is unavailble
+                    except ImportError:
+                        from girder.api.rest import getApiUrl as getWorkerApiUrl
+                from girder.api.rest import getCurrentToken
+                self.gc = GirderClient(apiUrl=getWorkerApiUrl())
                 self.gc.token = getCurrentToken()['_id']
             else:
                 self.gc = gc
