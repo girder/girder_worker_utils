@@ -52,21 +52,46 @@ class GirderFileId(GirderClientTransform):
     def __init__(self, _id, **kwargs):
         super(GirderFileId, self).__init__(**kwargs)
         self.file_id = _id
+        # Add a local file path if direct paths are allowed
+        try:
+            from girder.models.file import File
+            from girder.models.setting import Setting
+            from girder.exceptions import FilePathException
+            try:
+                from girder_worker.girder_plugin.constants import PluginSettings
+            except ImportError:
+                from girder.plugins.worker.constants import PluginSettings
+            if Setting().get(PluginSettings.DIRECT_PATH):
+                try:
+                    self.local_file_path = File().getLocalFilePath(
+                        File().load(self.file_id, force=True))
+                except FilePathException:
+                    pass
+        except ImportError:
+            pass
 
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.file_id)
 
     def transform(self):
-        self.file_path = os.path.join(
-            tempfile.mkdtemp(), '{}'.format(self.file_id))
+        import girder_worker.utils
 
-        self.gc.downloadFile(self.file_id, self.file_path)
-
+        # Don't download if self.local_file_path is set and direct paths are
+        # allowed.
+        if (getattr(self, 'local_file_path', None) and
+                girder_worker.utils.allow_direct_path() and
+                os.path.isfile(self.local_file_path)):
+            self.file_path = self.local_file_path
+            self.temp_dir_path = None
+        else:
+            self.temp_dir_path = tempfile.mkdtemp(dir=girder_worker.utils.get_tmp_root())
+            self.file_path = os.path.join(self.temp_dir_path, '{}'.format(self.file_id))
+            self.gc.downloadFile(self.file_id, self.file_path)
         return self.file_path
 
     def cleanup(self):
-        shutil.rmtree(os.path.dirname(self.file_path),
-                      ignore_errors=True)
+        if self.temp_dir_path:
+            shutil.rmtree(self.temp_dir_path, ignore_errors=True)
 
 
 class GirderItemMetadata(GirderClientTransform):
