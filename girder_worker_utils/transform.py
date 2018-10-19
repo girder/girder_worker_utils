@@ -8,7 +8,7 @@ class Transform(object):
     def _repr_model_(self):
         """Return as representation of the object suitable for storing in mongo.
 
-        This function retuns a string representation of the object
+        This function returns a string representation of the object
         that is stored in a girder Job Model's 'args' or 'kwargs'
         fields.  It is for display purposes only.
 
