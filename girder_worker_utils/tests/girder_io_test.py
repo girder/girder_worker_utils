@@ -55,9 +55,9 @@ def test_GirderUploadToFolder_upload_directory(mock_gc):
 
     files = {'file1.txt', 'file2.txt'}
     calls = [mock.call('the_id', os.path.join(DIR_PATH, f), reference='foo') for f in files]
+    calls.append(mock.call(
+        'sub_id', os.path.join(DIR_PATH, 'subdir', 'file3.txt'), reference='foo'))
     mock_gc.uploadFileToFolder.assert_has_calls(calls, any_order=True)
-    mock_gc.uploadFileToFolder.assert_called_with(
-        'sub_id', os.path.join(DIR_PATH, 'subdir', 'file3.txt'), reference='foo')
 
 
 @pytest.mark.parametrize('should_delete', (True, False))
