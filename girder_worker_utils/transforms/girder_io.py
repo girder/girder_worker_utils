@@ -144,13 +144,19 @@ class GirderUploadToFolder(GirderClientResultTransform):
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.folder_id)
 
+    def _uploadFolder(self, path, folder_id):
+        for f in os.listdir(path):
+            fpath = os.path.join(path, f)
+            if os.path.isfile(fpath):
+                self.gc.uploadFileToFolder(folder_id, fpath, **self.upload_kwargs)
+            elif os.path.isdir(fpath) and not os.path.islink(fpath):
+                folder = self.gc.createFolder(folder_id, f, reuseExisting=True)
+                self._uploadFolder(fpath, folder['_id'])
+
     def transform(self, path):
         self.output_file_path = path
         if os.path.isdir(path):
-            for f in os.listdir(path):
-                f = os.path.join(path, f)
-                if os.path.isfile(f):
-                    self.gc.uploadFileToFolder(self.folder_id, f, **self.upload_kwargs)
+            self._uploadFolder(path, self.folder_id)
         else:
             self.gc.uploadFileToFolder(self.folder_id, path, **self.upload_kwargs)
         return self.folder_id
