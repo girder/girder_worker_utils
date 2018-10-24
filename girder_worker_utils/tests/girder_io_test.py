@@ -49,12 +49,15 @@ def test_GirderUploadToFolder_upload_file(mock_gc):
 
 
 def test_GirderUploadToFolder_upload_directory(mock_gc):
+    mock_gc.createFolder.return_value = {'_id': 'sub_id'}
     utf = girder_io.GirderUploadToFolder('the_id', gc=mock_gc, upload_kwargs={'reference': 'foo'})
     assert utf.transform(DIR_PATH) == 'the_id'
 
     files = {'file1.txt', 'file2.txt'}
     calls = [mock.call('the_id', os.path.join(DIR_PATH, f), reference='foo') for f in files]
     mock_gc.uploadFileToFolder.assert_has_calls(calls, any_order=True)
+    mock_gc.uploadFileToFolder.assert_called_with(
+        'sub_id', os.path.join(DIR_PATH, 'subdir', 'file3.txt'), reference='foo')
 
 
 @pytest.mark.parametrize('should_delete', (True, False))
