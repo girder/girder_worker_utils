@@ -32,20 +32,20 @@ class Argument(object):
 
 
 # No default value for this argument
-class Arg(Argument):
+class PositionalArg(Argument):
     pass
 
 
 # Has a default argument for the value
-class KWArg(Argument):
+class KeywordArg(Argument):
     pass
 
 
-class Varargs(Argument):
+class VarsArg(Argument):
     pass
 
 
-class Kwargs(Argument):
+class KwargsArg(Argument):
     pass
 
 # TODO: is there anything we want to try and do with the functions
@@ -132,13 +132,13 @@ class GWFuncDesc(object):
 
     def _get_class(self, p):
         if self._is_varargs(p):
-            return Varargs
+            return VarsArg
         elif self._is_kwargs(p):
-            return Kwargs
+            return KwargsArg
         elif self._is_posarg(p):
-            return Arg
+            return PositionalArg
         elif self._is_kwarg(p):
-            return KWArg
+            return KeywordArg
         else:
             raise RuntimeError("Could not determine parameter type!")
 
@@ -165,23 +165,23 @@ class GWFuncDesc(object):
     def varargs(self):
         for name in self._signature.parameters:
             if self._is_varargs(self._signature.parameters[name]):
-                return self._construct_argument(Varargs, name)
+                return self._construct_argument(VarsArg, name)
         return None
 
     @property
     def kwargs(self):
         for name in self._signature.parameters:
             if self._is_kwargs(self._signature.parameters[name]):
-                return self._construct_argument(Kwargs, name)
+                return self._construct_argument(KeywordArg, name)
         return None
 
     @property
     def positional_args(self):
-        return [arg for arg in self.arguments if isinstance(arg, Arg)]
+        return [arg for arg in self.arguments if isinstance(arg, PositionalArg)]
 
     @property
     def keyword_args(self):
-        return [arg for arg in self.arguments if isinstance(arg, KWArg)]
+        return [arg for arg in self.arguments if isinstance(arg, KeywordArg)]
 
 
 def parameter(name, **kwargs):

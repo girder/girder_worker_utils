@@ -4,12 +4,12 @@ from girder_worker_utils import decorators
 from girder_worker_utils import types
 from girder_worker_utils.decorators import (
     argument,
-    parameter,
     GWFuncDesc,
-    Varargs,
-    Kwargs,
-    Arg,
-    KWArg)
+    KeywordArg,
+    KwargsArg,
+    parameter,
+    PositionalArg,
+    VarsArg)
 
 
 @argument('n', types.Integer, help='The element to return')
@@ -199,20 +199,20 @@ def arg_kwarg_varargs_kwargs(a, b='test', *args, **kwargs): pass # noqa
 
 
 @pytest.mark.parametrize('func,classes', [
-    (arg, [Arg]),
-    (varargs, [Varargs]),
-    (kwarg, [KWArg]),
-    (kwargs, [Kwargs]),
-    (arg_arg, [Arg, Arg]),
-    (arg_varargs, [Arg, Varargs]),
-    (arg_kwarg, [Arg, KWArg]),
-    (arg_kwargs, [Arg, Kwargs]),
-    (kwarg_varargs, [KWArg, Varargs]),
-    (kwarg_kwarg, [KWArg, KWArg]),
-    (kwarg_kwargs, [KWArg, Kwargs]),
-    (arg_kwarg_varargs, [Arg, KWArg, Varargs]),
-    (arg_kwarg_kwargs, [Arg, KWArg, Kwargs]),
-    (arg_kwarg_varargs_kwargs, [Arg, KWArg, Varargs, Kwargs])
+    (arg, [PositionalArg]),
+    (varargs, [VarsArg]),
+    (kwarg, [KeywordArg]),
+    (kwargs, [KwargsArg]),
+    (arg_arg, [PositionalArg, PositionalArg]),
+    (arg_varargs, [PositionalArg, VarsArg]),
+    (arg_kwarg, [PositionalArg, KeywordArg]),
+    (arg_kwargs, [PositionalArg, KwargsArg]),
+    (kwarg_varargs, [KeywordArg, VarsArg]),
+    (kwarg_kwarg, [KeywordArg, KeywordArg]),
+    (kwarg_kwargs, [KeywordArg, KwargsArg]),
+    (arg_kwarg_varargs, [PositionalArg, KeywordArg, VarsArg]),
+    (arg_kwarg_kwargs, [PositionalArg, KeywordArg, KwargsArg]),
+    (arg_kwarg_varargs_kwargs, [PositionalArg, KeywordArg, VarsArg, KwargsArg])
 ])
 def test_GWFuncDesc_arguments_returns_expected_classes(func, classes):
     spec = GWFuncDesc(func)
@@ -239,7 +239,7 @@ with_varargs = [varargs, arg_varargs, kwarg_varargs,
 @pytest.mark.parametrize('func', with_varargs)
 def test_GWFuncDesc_varargs_returns_Vararg(func):
     spec = GWFuncDesc(func)
-    assert isinstance(spec.varargs, Varargs)
+    assert isinstance(spec.varargs, VarsArg)
 
 
 @pytest.mark.parametrize('func,names', [
@@ -255,7 +255,7 @@ def test_GWFuncDesc_positional_args_correct_names(func, names):
     spec = GWFuncDesc(func)
     assert len(spec.positional_args) == len(names)
     for p, n in zip(spec.positional_args, names):
-        assert isinstance(p, Arg)
+        assert isinstance(p, PositionalArg)
         assert p.name == n
 
 
@@ -282,7 +282,7 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
     spec = GWFuncDesc(func)
     assert len(spec.keyword_args) == len(names)
     for p, n in zip(spec.keyword_args, names):
-        assert isinstance(p, KWArg)
+        assert isinstance(p, KeywordArg)
         assert p.name == n
 
 

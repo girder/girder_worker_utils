@@ -2,9 +2,9 @@ import pytest
 
 from girder_worker_utils.decorators import (
     GWFuncDesc,
-    Varargs,
-    Arg,
-    KWArg)
+    KeywordArg,
+    PositionalArg,
+    VarsArg)
 
 
 def arg_varargs_kwarg(a, *args, b='test'): pass  # noqa
@@ -15,10 +15,10 @@ def arg_with_annotation(a: int): pass # noqa
 
 
 @pytest.mark.parametrize('func,classes', [
-    (arg_varargs_kwarg, [Arg, Varargs, KWArg]),
-    (arg_varargs_kwarg_no_default, [Arg, Varargs, KWArg]),
-    (arg_emptyvarargs_kwarg, [Arg, KWArg]),
-    (arg_emptyvarargs_kwarg_no_default, [Arg, KWArg])
+    (arg_varargs_kwarg, [PositionalArg, VarsArg, KeywordArg]),
+    (arg_varargs_kwarg_no_default, [PositionalArg, VarsArg, KeywordArg]),
+    (arg_emptyvarargs_kwarg, [PositionalArg, KeywordArg]),
+    (arg_emptyvarargs_kwarg_no_default, [PositionalArg, KeywordArg])
 ])
 def test_GWFuncDesc_arguments_returns_expected_classes(func, classes):
     spec = GWFuncDesc(func)
@@ -45,7 +45,7 @@ with_varargs = [
 @pytest.mark.parametrize('func', with_varargs)
 def test_GWFuncDesc_varargs_returns_Vararg(func):
     spec = GWFuncDesc(func)
-    assert isinstance(spec.varargs, Varargs)
+    assert isinstance(spec.varargs, VarsArg)
 
 
 @pytest.mark.parametrize('func,names', [
@@ -58,7 +58,7 @@ def test_GWFuncDesc_positional_args_correct_names(func, names):
     spec = GWFuncDesc(func)
     assert len(spec.positional_args) == len(names)
     for p, n in zip(spec.positional_args, names):
-        assert isinstance(p, Arg)
+        assert isinstance(p, PositionalArg)
         assert p.name == n
 
 
@@ -72,7 +72,7 @@ def test_GWFuncDesc_keyword_args_correct_names(func, names):
     spec = GWFuncDesc(func)
     assert len(spec.keyword_args) == len(names)
     for p, n in zip(spec.keyword_args, names):
-        assert isinstance(p, KWArg)
+        assert isinstance(p, KeywordArg)
         assert p.name == n
 
 
