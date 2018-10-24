@@ -1,4 +1,9 @@
 from inspect import getdoc
+
+import deprecation
+
+from girder_worker_utils import __version__
+
 try:
     from inspect import signature, Parameter
 except ImportError:  # pragma: nocover
@@ -213,6 +218,9 @@ def parameter(name, **kwargs):
     return argument_wrapper
 
 
+@deprecation.deprecated(deprecated_in="0.8.5", removed_in="0.9.0",
+                        current_version=__version__,
+                        details="Use 'parameter' decorator instead")
 def argument(name, data_type, *args, **kwargs):
     """Describe an argument to a function as a function decorator.
 

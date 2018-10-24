@@ -1,3 +1,4 @@
+import deprecation
 import pytest
 
 from girder_worker_utils import decorators
@@ -12,42 +13,16 @@ from girder_worker_utils.decorators import (
     VarsArg)
 
 
-@argument('n', types.Integer, help='The element to return')
-def fibonacci(n):
-    """Compute a fibonacci number."""
-    if n <= 2:
-        return 1
-    return fibonacci(n - 1) + fibonacci(n - 2)
-
-
-@argument('val', types.String, help='The value to return')
-def keyword_func(val='test'):
-    """Return a value."""
-    return val
-
-
-@argument('arg1', types.String)
-@argument('arg2', types.StringChoice, choices=('a', 'b'))
-@argument('kwarg1', types.StringVector)
-@argument('kwarg2', types.Number, min=0, max=10)
-@argument('kwarg3', types.NumberMultichoice, choices=(1, 2, 3, 4, 5))
-def complex_func(arg1, arg2, kwarg1=('one',), kwarg2=4, kwarg3=(1, 2)):
-    return {
-        'arg1': arg1,
-        'arg2': arg2,
-        'kwarg1': kwarg1,
-        'kwarg2': kwarg2,
-        'kwarg3': kwarg3
-    }
-
-
-@argument('item', types.GirderItem)
-@argument('folder', types.GirderFolder)
-def girder_types_func(item, folder):
-    return item, folder
-
-
+@deprecation.fail_if_not_removed
 def test_positional_argument():
+
+    @argument('n', types.Integer, help='The element to return')
+    def fibonacci(n):
+        """Compute a fibonacci number."""
+        if n <= 2:
+            return 1
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
     desc = fibonacci.describe()
     assert len(desc['inputs']) == 1
     assert desc['name'].split('.')[-1] == 'fibonacci'
@@ -63,7 +38,14 @@ def test_positional_argument():
         fibonacci.call_item_task({})
 
 
+@deprecation.fail_if_not_removed
 def test_keyword_argument():
+
+    @argument('val', types.String, help='The value to return')
+    def keyword_func(val='test'):
+        """Return a value."""
+        return val
+
     desc = keyword_func.describe()
     assert len(desc['inputs']) == 1
     assert desc['name'].split('.')[-1] == 'keyword_func'
@@ -78,7 +60,23 @@ def test_keyword_argument():
     assert keyword_func.call_item_task({}) == 'test'
 
 
+@deprecation.fail_if_not_removed
 def test_multiple_arguments():
+
+    @argument('arg1', types.String)
+    @argument('arg2', types.StringChoice, choices=('a', 'b'))
+    @argument('kwarg1', types.StringVector)
+    @argument('kwarg2', types.Number, min=0, max=10)
+    @argument('kwarg3', types.NumberMultichoice, choices=(1, 2, 3, 4, 5))
+    def complex_func(arg1, arg2, kwarg1=('one',), kwarg2=4, kwarg3=(1, 2)):
+        return {
+            'arg1': arg1,
+            'arg2': arg2,
+            'kwarg1': kwarg1,
+            'kwarg2': kwarg2,
+            'kwarg3': kwarg3
+        }
+
     desc = complex_func.describe()
     assert len(desc['inputs']) == 5
     assert desc['name'].split('.')[-1] == 'complex_func'
@@ -136,7 +134,14 @@ def test_multiple_arguments():
     }
 
 
+@deprecation.fail_if_not_removed
 def test_girder_input_mode():
+
+    @argument('item', types.GirderItem)
+    @argument('folder', types.GirderFolder)
+    def girder_types_func(item, folder):
+        return item, folder
+
     item, folder = girder_types_func.call_item_task({
         'item': {
             'mode': 'girder',
@@ -155,6 +160,7 @@ def test_girder_input_mode():
     assert folder == 'folderid'
 
 
+@deprecation.fail_if_not_removed
 def test_missing_description_exception():
     def func():
         pass
@@ -163,11 +169,13 @@ def test_missing_description_exception():
         decorators.get_description_attribute(func)
 
 
+@deprecation.fail_if_not_removed
 def test_argument_name_not_string():
     with pytest.raises(TypeError):
         argument(0, types.Integer)
 
 
+@deprecation.fail_if_not_removed
 def test_argument_name_not_a_parameter():
     with pytest.raises(ValueError):
         @argument('notarg', types.Integer)
@@ -175,6 +183,7 @@ def test_argument_name_not_a_parameter():
             pass
 
 
+@deprecation.fail_if_not_removed
 def test_unhandled_input_binding():
     arg = argument('arg', types.Integer)
     with pytest.raises(ValueError):

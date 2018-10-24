@@ -3,3 +3,4 @@ girder-client>=2
 jsonpickle
 setuptools_scm
 six
+deprecation
