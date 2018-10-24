@@ -1,6 +1,8 @@
+import abc
 import mimetypes
 import os
 import shutil
+import six
 import tempfile
 
 from girder_client import GirderClient
@@ -9,6 +11,7 @@ from six.moves.urllib.parse import urlencode
 from ..transform import ResultTransform, Transform
 
 
+@six.add_metaclass(abc.ABCMeta)
 class GirderClientTransform(Transform):
     def __init__(self, *args, **kwargs):
         gc = kwargs.pop('gc', None)
@@ -37,36 +40,68 @@ class GirderClientTransform(Transform):
             self.gc = None
 
 
+@six.add_metaclass(abc.ABCMeta)
 class GirderClientResultTransform(ResultTransform, GirderClientTransform):
     pass
 
 
-class GirderFileId(GirderClientTransform):
+@six.add_metaclass(abc.ABCMeta)
+class _GirderResourceDownload(GirderClientTransform):
+    def __init__(self, _id, **kwargs):
+        super(_GirderResourceDownload, self).__init__(**kwargs)
+        self._id = _id
+        self._local_path = None
+
+    def _repr_model_(self):
+        return "{}('{}')".format(self.__class__.__name__, self._id)
+
+    @property
+    def local_path(self):
+        if self._local_path is None:
+            self._local_path = os.path.join(tempfile.mkdtemp(), str(self._id))
+        return self._local_path
+
+    def cleanup(self):
+        shutil.rmtree(os.path.dirname(self.local_path), ignore_errors=True)
+
+
+class GirderFileId(_GirderResourceDownload):
     """
-    This transform downloads a Girder File to the local machine and passes its
+    This transform downloads a Girder file to the local machine and passes its
     local path into the function.
 
     :param _id: The ID of the file to download.
     :type _id: str
     """
-    def __init__(self, _id, **kwargs):
-        super(GirderFileId, self).__init__(**kwargs)
-        self.file_id = _id
-
-    def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.file_id)
-
     def transform(self):
-        self.file_path = os.path.join(
-            tempfile.mkdtemp(), '{}'.format(self.file_id))
+        self.gc.downloadFile(self._id, self.local_path)
+        return self.local_path
 
-        self.gc.downloadFile(self.file_id, self.file_path)
 
-        return self.file_path
+class GirderFolderId(_GirderResourceDownload):
+    """
+    This transform downloads a Girder folder to the local machine and passes its
+    local path into the function.
 
-    def cleanup(self):
-        shutil.rmtree(os.path.dirname(self.file_path),
-                      ignore_errors=True)
+    :param _id: The ID of the folder to download.
+    :type _id: str
+    """
+    def transform(self):
+        self.gc.downloadFolderRecursive(self._id, self.local_path)
+        return self.local_path
+
+
+class GirderItemId(_GirderResourceDownload):
+    """
+    This transform downloads a Girder item to the local machine and passes its
+    local path into the function.
+
+    :param _id: The ID of the item to download.
+    :type _id: str
+    """
+    def transform(self):
+        self.gc.downloadItem(self._id, self.local_path)
+        return self.local_path
 
 
 class GirderItemMetadata(GirderClientTransform):
