@@ -149,7 +149,7 @@ class GirderUploadToFolder(GirderClientResultTransform):
             fpath = os.path.join(path, f)
             if os.path.isfile(fpath):
                 self.gc.uploadFileToFolder(folder_id, fpath, **self.upload_kwargs)
-            elif os.path.isdir(fpath):
+            elif os.path.isdir(fpath) and not os.path.islink(fpath):
                 folder = self.gc.createFolder(folder_id, f, reuseExisting=True)
                 self._uploadFolder(fpath, folder['_id'])
 
