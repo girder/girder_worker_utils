@@ -73,6 +73,11 @@ class GWFuncDesc(object):
                        'KEYWORD_ONLY',
                        'VAR_KEYWORD']
 
+    VarsArgCls = VarsArg
+    KwargsArgCls = KwargsArg
+    PositionalArgCls = PositionalArg
+    KeywordArgCls = KeywordArg
+
     @classmethod
     def get_description(cls, func):
         if cls.has_description(func) and \
@@ -137,13 +142,13 @@ class GWFuncDesc(object):
 
     def _get_class(self, p):
         if self._is_varargs(p):
-            return VarsArg
+            return self.VarsArgCls
         elif self._is_kwargs(p):
-            return KwargsArg
+            return self.KwargsArgCls
         elif self._is_posarg(p):
-            return PositionalArg
+            return self.PositionalArgCls
         elif self._is_kwarg(p):
-            return KeywordArg
+            return self.KeywordArgCls
         else:
             raise RuntimeError("Could not determine parameter type!")
 
@@ -153,7 +158,7 @@ class GWFuncDesc(object):
 
     def set_metadata(self, name, key, value):
         if name not in self._signature.parameters:
-            raise RuntimeError("{} is not a valid argument to this function!")
+            raise RuntimeError("{} is not a valid argument to this function!".format(name))
 
         self.init_metadata(name)
 
