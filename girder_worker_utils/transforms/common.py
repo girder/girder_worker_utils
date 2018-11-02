@@ -12,9 +12,7 @@ class TemporaryDirectory(Transform):
         return self.__class__.__name__
 
     def transform(self):
-        import girder_worker.utils
-
-        self.temp_dir_path = tempfile.mkdtemp(dir=girder_worker.utils.get_tmp_root())
+        self.temp_dir_path = tempfile.mkdtemp()
         return self.temp_dir_path
 
     def cleanup(self):
