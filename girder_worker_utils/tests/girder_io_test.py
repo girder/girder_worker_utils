@@ -99,3 +99,13 @@ def test_GirderUploadJobArtifact(mock_gc):
     urls = sorted(args[0][0] for args in mock_gc.post.call_args_list)
     assert 'name=file1.txt' in urls[0]
     assert 'name=file2.txt' in urls[1]
+
+
+def test_GirderFileId(mock_gc, mock_rmtree):
+    t = girder_io.GirderFileId(_id='the_id', gc=mock_gc)
+    t.transform()
+    mock_gc.downloadFile.assert_called_once()
+    assert 'the_id' in mock_gc.downloadFile.call_args[0]
+    mock_rmtree.assert_not_called()
+    t.cleanup()
+    mock_rmtree.assert_called_once()
