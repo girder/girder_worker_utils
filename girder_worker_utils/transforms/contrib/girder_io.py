@@ -9,35 +9,43 @@ class GirderFileIdAllowDirect(GirderClientTransform):
     """
     This transform either uses direct path to access a file, if possible and
     allowed, or downloads a Girder File to the local machine and passes its
-    local path into the function.
+    local path into the function.  The direct path is only used if the
+    GW_DIRECT_PATHS environment variable is set.
 
     WARNING: if a direct path is used, the task MUST NOT modify the file.  It
     is the resposibility of the user of this transform to ensure tasks treat
     files as read-only.
 
+    To use this transform from Girder, it should be called via something like:
+    ```
+    try:
+        local_path = File().getLocalFilePath(file)
+    except FilePathException:
+        local_path = None
+    input_path = GirderFileIdAllowDirect(
+        str(file['_id']), file['name'], local_path)
+    ```
+
     :param _id: The ID of the file to download.
     :type _id: str
+    :param name: The name of the file.  If the file must be downloaded, the
+        extension is preserved.
+    :type name: str
+    :param local_path: If specified and the path exists and is reachable by
+        after the transform, the file is accessed directly.
+    :type local_path: str
     """
-    def __init__(self, _id, **kwargs):
+    def __init__(self, _id, name='', local_path=None, **kwargs):
         super(GirderFileIdAllowDirect, self).__init__(**kwargs)
-        from girder.models.file import File
-        from girder.exceptions import FilePathException
         self.file_id = _id
-        file = File().load(self.file_id, force=True)
-        # Store the original file name so that, if downloading the file, the
-        # extension can be preserved.
-        self.file_name = file['name']
-        try:
-            # Add a local file path if direct paths are allowed
-            self.local_file_path = File().getLocalFilePath(file)
-        except FilePathException:
-            self.local_file_path = None
+        self.file_name = name
+        self.local_file_path = local_path
 
     def _repr_model_(self):
         if self.local_file_path:
-            return '{}({!r}) - {!r} - {!r}'.format(
+            return '{}({!r}, {!r}, {!r})'.format(
                 self.__class__.__name__, self.file_id, self.file_name, self.local_file_path)
-        return '{}({!r}) - {!r}'.format(self.__class__.__name__, self.file_id, self.file_name)
+        return '{}({!r}, {!r})'.format(self.__class__.__name__, self.file_id, self.file_name)
 
     def _allowDirectPath(self):
         """
