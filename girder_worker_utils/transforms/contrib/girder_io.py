@@ -50,12 +50,12 @@ class GirderFileIdAllowDirect(GirderClientTransform):
     def _allowDirectPath(self):
         """
         Check if the worker environment permits direct paths.  This just checks
-        if the environment variable GW_DIRECT_PATHS is set to a non-empry
+        if the environment variable GW_DIRECT_PATHS is set to a non-empty
         value.
+
+        :returns: True if direct paths are allowed.
         """
-        if os.environ.get('GW_DIRECT_PATHS'):
-            return True
-        return False
+        return bool(os.environ.get('GW_DIRECT_PATHS'))
 
     def transform(self):
         # Don't download if self.local_file_path is set and direct paths are
