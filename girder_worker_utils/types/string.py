@@ -1,21 +1,8 @@
-import six
-
-from .base import Base
+import click
 
 
-class String(Base):
-    """Define a parameter that can be an arbitrary string.
-
-    >>> @argument('person', types.String)
-    ... def func(person='eve'):
-    ...     pass
-    """
-
-    description = {
-        'type': 'string',
-        'description': 'Provide a string value'
-    }
-
-    def validate(self, value):
-        if not isinstance(value, six.string_types):
-            raise TypeError('Expected a string value for "%s"' % self.name)
+class String(click.types.StringParamType):
+    def item_tasks_json(self, param, ctx=None):
+        return {
+            'type': 'string'
+        }
