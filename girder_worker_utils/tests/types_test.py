@@ -17,7 +17,7 @@ def test_validate_choice_value():
 
 def test_serialize_integer():
     arg = types.Integer('arg')
-    assert arg.serialize(1.0) is 1
+    assert arg.serialize(1.0) == 1
 
 
 def test_validate_integer_range():
