@@ -109,3 +109,13 @@ def test_GirderFileId(mock_gc, mock_rmtree):
     mock_rmtree.assert_not_called()
     t.cleanup()
     mock_rmtree.assert_called_once()
+
+
+def test_GirderItemId(mock_gc, mock_rmtree):
+    t = girder_io.GirderItemId(_id='the_id', gc=mock_gc)
+    t.transform()
+    mock_gc.downloadItem.assert_called_once()
+    assert 'the_id' in mock_gc.downloadItem.call_args[0]
+    mock_rmtree.assert_not_called()
+    t.cleanup()
+    mock_rmtree.assert_called_once()
