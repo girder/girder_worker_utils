@@ -15,11 +15,11 @@ class Transform(object):
         """
         return str(self)
 
-    def cleanup(self):
+    def cleanup(self, *args, **kwargs):
         pass
 
     @abc.abstractmethod
-    def transform(self):
+    def transform(self, *args, **kwargs):
         pass
 
 
@@ -31,7 +31,7 @@ class ResultTransform(Transform):
     job = None
 
     @abc.abstractmethod
-    def transform(self, data):
+    def transform(self, data, *args, **kwargs):
         pass
 
     def exception(self):

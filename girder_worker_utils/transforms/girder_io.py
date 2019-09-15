@@ -56,7 +56,7 @@ class GirderFileId(GirderClientTransform):
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.file_id)
 
-    def transform(self):
+    def transform(self, *args, **kwargs):
         self.file_path = os.path.join(
             tempfile.mkdtemp(), '{}'.format(self.file_id))
 
@@ -64,7 +64,7 @@ class GirderFileId(GirderClientTransform):
 
         return self.file_path
 
-    def cleanup(self):
+    def cleanup(self, *args, **kwargs):
         shutil.rmtree(os.path.dirname(self.file_path),
                       ignore_errors=True)
 
@@ -106,7 +106,7 @@ class GirderItemMetadata(GirderClientTransform):
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.item_id)
 
-    def transform(self, data):
+    def transform(self, data, *args, **kwargs):
         self.gc.addMetadataToItem(self.item_id, data)
 
         return data
@@ -133,7 +133,7 @@ class GirderUploadToItem(GirderClientResultTransform):
     def _repr_model_(self):
         return "{}('{}')".format(self.__class__.__name__, self.item_id)
 
-    def transform(self, path):
+    def transform(self, path, *args, **kwargs):
         self.output_file_path = path
         if os.path.isdir(path):
             for f in os.listdir(path):
@@ -144,7 +144,7 @@ class GirderUploadToItem(GirderClientResultTransform):
             self.gc.uploadFileToItem(self.item_id, path, **self.upload_kwargs)
         return self.item_id
 
-    def cleanup(self):
+    def cleanup(self, *args, **kwargs):
         if self.delete_file is True:
             if os.path.isdir(self.output_file_path):
                 shutil.rmtree(self.output_file_path)
