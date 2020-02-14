@@ -28,9 +28,21 @@ class GirderClientTransform(Transform):
                     # Fall back if the worker plugin is unavailble
                     except ImportError:
                         from girder.api.rest import getApiUrl as getWorkerApiUrl
-                from girder.api.rest import getCurrentToken
+
                 self.gc = GirderClient(apiUrl=getWorkerApiUrl())
-                self.gc.token = getCurrentToken()['_id']
+                from girder.api.rest import getCurrentUser
+                if getCurrentUser():
+                    from girder.constants import TokenScope
+                    from girder.models.token import Token
+                    token = Token().createToken(
+                        days=1,
+                        scope=[TokenScope.DATA_READ, TokenScope.DATA_WRITE],
+                        user=getCurrentUser(),
+                    )['_id']
+                else:
+                    from girder.api.rest import getCurrentToken
+                    token = getCurrentToken()['_id']
+                self.gc.token = token
             else:
                 self.gc = gc
         except ImportError:
