@@ -35,7 +35,7 @@ class GirderClientTransform(Transform):
                     from girder.constants import TokenScope
                     from girder.models.token import Token
                     token = Token().createToken(
-                        days=1,
+                        days=7,
                         scope=[TokenScope.DATA_READ, TokenScope.DATA_WRITE],
                         user=getCurrentUser(),
                     )['_id']
