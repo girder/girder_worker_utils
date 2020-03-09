@@ -77,8 +77,9 @@ class GirderFileId(GirderClientTransform):
         return self.file_path
 
     def cleanup(self):
-        shutil.rmtree(os.path.dirname(self.file_path),
-                      ignore_errors=True)
+        if hasattr(self, 'file_path'):
+            shutil.rmtree(os.path.dirname(self.file_path),
+                          ignore_errors=True)
 
 
 class GirderItemId(GirderClientTransform):
@@ -106,8 +107,9 @@ class GirderItemId(GirderClientTransform):
         return self.item_path
 
     def cleanup(self):
-        shutil.rmtree(os.path.dirname(self.item_path),
-                      ignore_errors=True)
+        if hasattr(self, 'item_path'):
+            shutil.rmtree(os.path.dirname(self.item_path),
+                          ignore_errors=True)
 
 
 class GirderItemMetadata(GirderClientTransform):
@@ -157,7 +159,7 @@ class GirderUploadToItem(GirderClientResultTransform):
         return self.item_id
 
     def cleanup(self):
-        if self.delete_file is True:
+        if self.delete_file is True and hasattr(self, 'output_file_path'):
             if os.path.isdir(self.output_file_path):
                 shutil.rmtree(self.output_file_path)
             else:
@@ -203,7 +205,7 @@ class GirderUploadToFolder(GirderClientResultTransform):
         return self.folder_id
 
     def cleanup(self):
-        if self.delete_file is True:
+        if self.delete_file is True and hasattr(self, 'output_file_path'):
             if os.path.isdir(self.output_file_path):
                 shutil.rmtree(self.output_file_path)
             else:
