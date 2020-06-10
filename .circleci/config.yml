@@ -17,7 +17,7 @@ install-deps: &install-deps
 jobs:
   lint:
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:3.6
     steps :
       - checkout
       - *initialize-venv
@@ -27,19 +27,6 @@ jobs:
           command: |
             . ../venv/bin/activate
             tox -e flake8
-
-  py2_unit_tests:
-    docker:
-      - image: circleci/python:2.7
-    steps :
-      - checkout
-      - *initialize-venv
-      - *install-deps
-      - run:
-          name: Run unit tests
-          command: |
-            . ../venv/bin/activate
-            tox -e py27
 
   py3_unit_tests:
     docker:
@@ -57,7 +44,7 @@ jobs:
 
   release:
     docker:
-      - image: circleci/python:2.7
+      - image: circleci/python:3.6
 
     steps:
       - checkout
@@ -89,10 +76,6 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-      - py2_unit_tests:
-          filters:
-            tags:
-              only: /^v.*/
 
       - py3_unit_tests:
           filters:
@@ -102,7 +85,6 @@ workflows:
       - release:
           requires:
             - lint
-            - py2_unit_tests
             - py3_unit_tests
 
           filters:
