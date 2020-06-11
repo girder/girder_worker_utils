@@ -1,5 +1,6 @@
-funcsigs ; python_version < '3.5'
 girder-client>=2
 jsonpickle
+requests>=2.20.0
 setuptools_scm
 six
+urllib3>=1.24.2
