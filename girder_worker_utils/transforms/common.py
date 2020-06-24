@@ -16,4 +16,5 @@ class TemporaryDirectory(Transform):
         return self.temp_dir_path
 
     def cleanup(self):
-        shutil.rmtree(self.temp_dir_path, ignore_errors=True)
+        if hasattr(self, 'temp_dir_path'):
+            shutil.rmtree(self.temp_dir_path, ignore_errors=True)
