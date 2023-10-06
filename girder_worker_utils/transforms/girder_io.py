@@ -4,7 +4,7 @@ import shutil
 import tempfile
 
 from girder_client import GirderClient
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from ..transform import ResultTransform, Transform
 
@@ -62,15 +62,15 @@ class GirderFileId(GirderClientTransform):
     :type _id: str
     """
     def __init__(self, _id, **kwargs):
-        super(GirderFileId, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.file_id = _id
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.file_id)
+        return f"{self.__class__.__name__}('{self.file_id}')"
 
     def transform(self):
         self.file_path = os.path.join(
-            tempfile.mkdtemp(), '{}'.format(self.file_id))
+            tempfile.mkdtemp(), f'{self.file_id}')
 
         self.gc.downloadFile(self.file_id, self.file_path)
 
@@ -91,11 +91,11 @@ class GirderItemId(GirderClientTransform):
     :type _id: str
     """
     def __init__(self, _id, **kwargs):
-        super(GirderItemId, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.item_id = _id
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.item_id)
+        return f"{self.__class__.__name__}('{self.item_id}')"
 
     def transform(self):
         temp_dir = tempfile.mkdtemp()
@@ -114,11 +114,11 @@ class GirderItemId(GirderClientTransform):
 
 class GirderItemMetadata(GirderClientTransform):
     def __init__(self, _id, **kwargs):
-        super(GirderItemMetadata, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.item_id = _id
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.item_id)
+        return f"{self.__class__.__name__}('{self.item_id}')"
 
     def transform(self, data):
         self.gc.addMetadataToItem(self.item_id, data)
@@ -139,13 +139,13 @@ class GirderUploadToItem(GirderClientResultTransform):
     :type upload_kwargs: dict
     """
     def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
-        super(GirderUploadToItem, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.item_id = _id
         self.upload_kwargs = upload_kwargs or {}
         self.delete_file = delete_file
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.item_id)
+        return f"{self.__class__.__name__}('{self.item_id}')"
 
     def transform(self, path):
         self.output_file_path = path
@@ -179,13 +179,13 @@ class GirderUploadToFolder(GirderClientResultTransform):
     :type upload_kwargs: dict
     """
     def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
-        super(GirderUploadToFolder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.folder_id = _id
         self.upload_kwargs = upload_kwargs or {}
         self.delete_file = delete_file
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.folder_id)
+        return f"{self.__class__.__name__}('{self.folder_id}')"
 
     def _uploadFolder(self, path, folder_id):
         for f in os.listdir(path):
@@ -227,12 +227,12 @@ class GirderUploadJobArtifact(GirderClientResultTransform):
     :type name: str
     """
     def __init__(self, job_id=None, name=None, **kwargs):
-        super(GirderUploadJobArtifact, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.job_id = job_id
         self.name = name
 
     def _repr_model_(self):
-        return "{}('{}')".format(self.__class__.__name__, self.job_id)
+        return f"{self.__class__.__name__}('{self.job_id}')"
 
     def _upload_artifact(self, file, name=None):
         qs = urlencode({

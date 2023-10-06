@@ -3,7 +3,6 @@ try:
     from inspect import signature
 except ImportError:  # pragma: nocover
     from funcsigs import signature
-import six
 
 
 class MissingDescriptionException(Exception):
@@ -31,7 +30,7 @@ def argument(name, data_type, *args, **kwargs):
     :param str name: The parameter name from the function declaration
     :param type: A type class derived from ``girder_worker_utils.types.Base``
     """
-    if not isinstance(name, six.string_types):
+    if not isinstance(name, str):
         raise TypeError('Expected argument name to be a string')
 
     if callable(data_type):

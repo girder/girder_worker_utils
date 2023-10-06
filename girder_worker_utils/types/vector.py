@@ -1,5 +1,3 @@
-import six
-
 from .base import Base
 
 
@@ -23,10 +21,10 @@ class Vector(Base):
             raise NotImplementedError('Subclasses should define elementClass')
 
         self.element = self.elementClass(*args, **kwargs)
-        super(Vector, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def describe(self, *args, **kwargs):
-        desc = super(Vector, self).describe(*args, **kwargs)
+        desc = super().describe(*args, **kwargs)
         desc['type'] = self.paramType
         desc['description'] = 'Provide a list of values'
         return desc
@@ -39,7 +37,7 @@ class Vector(Base):
             self.element.validate(elementValue)
 
     def deserialize(self, value):
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             value = value.split(self.seperator)
 
         return [self.element.deserialize(v) for v in value]

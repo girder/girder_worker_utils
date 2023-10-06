@@ -1,5 +1,3 @@
-import six
-
 from .base import Base
 
 
@@ -17,5 +15,5 @@ class String(Base):
     }
 
     def validate(self, value):
-        if not isinstance(value, six.string_types):
+        if not isinstance(value, str):
             raise TypeError('Expected a string value for "%s"' % self.name)

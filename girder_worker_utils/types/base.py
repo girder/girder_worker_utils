@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 
-class Base(object):
+class Base:
     """Define an abstract type class.
 
     This class defines the interface expected by the functions in

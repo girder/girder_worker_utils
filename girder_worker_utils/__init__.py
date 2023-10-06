@@ -1,5 +1,3 @@
-import six
-
 from pkg_resources import get_distribution, DistributionNotFound
 try:
     __version__ = get_distribution(__name__).version
@@ -30,7 +28,7 @@ def _walk_obj(obj, func, leaf_condition=None):
 
     if isinstance(obj, dict):
         return {k: _walk_obj(v, func, leaf_condition=leaf_condition)
-                for k, v in six.viewitems(obj)}
+                for k, v in obj.items()}
 
     elif isinstance(obj, list):
         return [_walk_obj(v, func, leaf_condition=leaf_condition) for v in obj]

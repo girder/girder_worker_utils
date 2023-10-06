@@ -16,10 +16,10 @@ class Choice(Base):
         :param list choices: A list of valid values.
         """
         self.choices = kwargs.get('choices', [])
-        super(Choice, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def describe(self, *args, **kwargs):
-        desc = super(Choice, self).describe(*args, **kwargs)
+        desc = super().describe(*args, **kwargs)
         desc['type'] = self.paramType
         desc['values'] = self.choices
         desc['description'] = 'Choose from a list of values'

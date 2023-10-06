@@ -7,11 +7,11 @@ from girder_worker_utils.tee import Tee, tee_stdout, TeeStdErr, TeeStdOut
 class TeeCapture(Tee):
     def __init__(self, *args, **kwargs):
         self.buf = ''
-        super(TeeCapture, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def write(self, message, **kwargs):
         self.buf += message
-        super(TeeCapture, self).write(message, **kwargs)
+        super().write(message, **kwargs)
 
 
 def test_tee_sys_write_stdout(capfd):

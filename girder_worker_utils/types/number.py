@@ -24,13 +24,13 @@ class Number(Base):
         :param float max: The maximum valid value
         :param float step: The resolution of valid values
         """
-        super(Number, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.min = kwargs.get('min')
         self.max = kwargs.get('max')
         self.step = kwargs.get('step')
 
     def describe(self, **kwargs):
-        desc = super(Number, self).describe(**kwargs)
+        desc = super().describe(**kwargs)
 
         if self.min is not None:
             desc['min'] = self.min

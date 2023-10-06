@@ -1,11 +1,9 @@
-import six
-
 from .app import app
 
 
 @app.task
 def task(string):
-    if isinstance(string, six.string_types):
+    if isinstance(string, str):
         return string
     else:
         return 'received %s' % type(string)

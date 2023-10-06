@@ -1,5 +1,5 @@
 import girder_client
-import mock
+from unittest import mock
 import os
 import pytest
 

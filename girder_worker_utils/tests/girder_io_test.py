@@ -1,7 +1,7 @@
 import os
 
 import girder_client
-import mock
+from unittest import mock
 import pytest
 
 from girder_worker_utils.transforms import girder_io
