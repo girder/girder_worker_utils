@@ -58,7 +58,7 @@ def tee_stderr(cls):
     return cls
 
 
-class Tee(object):
+class Tee:
     """Implements a context manager for intercepting write streams.
 
     This object is loosely inspired by the classic GNU utility

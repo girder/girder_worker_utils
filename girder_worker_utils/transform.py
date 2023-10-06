@@ -1,10 +1,7 @@
 import abc
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class Transform(object):
+class Transform(metaclass=abc.ABCMeta):
     def _repr_model_(self):
         """Return as representation of the object suitable for storing in mongo.
 
@@ -23,8 +20,7 @@ class Transform(object):
         pass
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ResultTransform(Transform):
+class ResultTransform(Transform, metaclass=abc.ABCMeta):
     # This will be populated by the worker via the girder_before_task_publish hook,
     # and it will point to the job that was created for this task. If no job was created
     # for this task, this will remain `None`.

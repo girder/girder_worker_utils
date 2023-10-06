@@ -13,8 +13,8 @@ class Integer(Number):
 
     def __init__(self, *args, **kwargs):
         kwargs['step'] = 1
-        super(Integer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def serialize(self, value):
-        value = super(Integer, self).serialize(value)
+        value = super().serialize(value)
         return int(value)

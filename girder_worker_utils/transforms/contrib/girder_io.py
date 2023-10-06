@@ -36,7 +36,7 @@ class GirderFileIdAllowDirect(GirderClientTransform):
     :type local_path: str
     """
     def __init__(self, _id, name='', local_path=None, **kwargs):
-        super(GirderFileIdAllowDirect, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.file_id = _id
         self.file_name = name
         self.local_file_path = local_path
@@ -45,7 +45,7 @@ class GirderFileIdAllowDirect(GirderClientTransform):
         if self.local_file_path:
             return '{}({!r}, {!r}, {!r})'.format(
                 self.__class__.__name__, self.file_id, self.file_name, self.local_file_path)
-        return '{}({!r}, {!r})'.format(self.__class__.__name__, self.file_id, self.file_name)
+        return f'{self.__class__.__name__}({self.file_id!r}, {self.file_name!r})'
 
     def _allowDirectPath(self):
         """
