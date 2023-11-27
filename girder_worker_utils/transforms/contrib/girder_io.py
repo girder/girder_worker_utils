@@ -1,8 +1,9 @@
 import os
 import shutil
 import tempfile
+import json
 
-from ..girder_io import GirderClientTransform
+from ..girder_io import GirderClientTransform, GirderUploadToFolder
 
 
 class GirderFileIdAllowDirect(GirderClientTransform):
@@ -35,6 +36,7 @@ class GirderFileIdAllowDirect(GirderClientTransform):
         after the transform, the file is accessed directly.
     :type local_path: str
     """
+
     def __init__(self, _id, name='', local_path=None, **kwargs):
         super().__init__(**kwargs)
         self.file_id = _id
@@ -74,3 +76,36 @@ class GirderFileIdAllowDirect(GirderClientTransform):
     def cleanup(self):
         if self.temp_dir_path:
             shutil.rmtree(self.temp_dir_path, ignore_errors=True)
+
+
+class GirderLargeImageAnnotation(GirderUploadToFolder):
+    """
+    Custom class for processing annotations and uploading them to the Annotations end-point directly.
+    """
+
+    def __init__(self, volumepath, folder_id, delete_file=False, **kwargs):
+        super().__init__(str(folder_id), delete_file, **kwargs)
+        self._volumepath = volumepath
+
+    def transform(self, *args, **kwargs):
+        path = self._volumepath
+
+        # Check if path has a 'transform' method and call it if present
+        if hasattr(path, 'transform') and callable(path.transform):
+            path = path.transform(*args, **kwargs)
+
+        unique_id = super().transform(path)
+
+        # Check if the file exists
+        if not os.path.isfile(path):
+            print(f"File not found: {path}")
+            return unique_id
+
+        with open(path, 'r') as input_file:
+            file_contents = input_file.read()
+
+            item_id = self.upload_kwargs.get('itemId')
+            if item_id is not None:
+                self.gc.post(f"annotation?itemId={item_id}", json=json.loads(file_contents))
+
+        return unique_id
