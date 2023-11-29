@@ -1,7 +1,6 @@
 import os
 import shutil
 import tempfile
-import json
 
 from ..girder_io import GirderClientTransform, GirderUploadToFolder
 
@@ -36,7 +35,6 @@ class GirderFileIdAllowDirect(GirderClientTransform):
         after the transform, the file is accessed directly.
     :type local_path: str
     """
-
     def __init__(self, _id, name='', local_path=None, **kwargs):
         super().__init__(**kwargs)
         self.file_id = _id
@@ -102,10 +100,7 @@ class GirderLargeImageAnnotation(GirderUploadToFolder):
             return unique_id
 
         with open(path, 'r') as input_file:
-            file_contents = input_file.read()
-
             item_id = self.upload_kwargs.get('itemId')
             if item_id is not None:
-                self.gc.post(f"annotation?itemId={item_id}", json=json.loads(file_contents))
-
+                self.gc.post(f"annotation/item/{item_id}",data=input_file)
         return unique_id
