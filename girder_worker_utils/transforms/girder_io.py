@@ -178,11 +178,12 @@ class GirderUploadToFolder(GirderClientResultTransform):
     :param upload_kwargs: Additional kwargs to pass to the upload method.
     :type upload_kwargs: dict
     """
-    def __init__(self, _id, delete_file=False, upload_kwargs=None, **kwargs):
+    def __init__(self, _id, delete_file=False, upload_kwargs=None, must_exist=True, **kwargs):
         super().__init__(**kwargs)
         self.folder_id = _id
         self.upload_kwargs = upload_kwargs or {}
         self.delete_file = delete_file
+        self.must_exist = True
 
     def _repr_model_(self):
         return f"{self.__class__.__name__}('{self.folder_id}')"
@@ -198,6 +199,8 @@ class GirderUploadToFolder(GirderClientResultTransform):
 
     def transform(self, path):
         self.output_file_path = path
+        if not self.must_exist and not os.path.exists(path):
+            return None
         if os.path.isdir(path):
             self._uploadFolder(path, self.folder_id)
         else:
