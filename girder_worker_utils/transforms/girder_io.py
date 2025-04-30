@@ -10,7 +10,7 @@ from ..transform import ResultTransform, Transform
 
 
 class GirderClientTransform(Transform):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa
         gc = kwargs.pop('gc', None)
 
         try:
@@ -34,9 +34,17 @@ class GirderClientTransform(Transform):
                 if getCurrentUser():
                     from girder.constants import TokenScope
                     from girder.models.token import Token
+                    scope = [TokenScope.DATA_READ, TokenScope.DATA_WRITE]
+                    if 'GIRDER_WORKER_JOB_GC_SCOPE' in os.environ:
+                        try:
+                            scope = list({
+                                part.strip('"[\'] ') for part in
+                                os.environ['GIRDER_WORKER_JOB_GC_SCOPE'].split(',')} | set(scope))
+                        except Exception:
+                            pass
                     token = Token().createToken(
                         days=7,
-                        scope=[TokenScope.DATA_READ, TokenScope.DATA_WRITE],
+                        scope=scope,
                         user=getCurrentUser(),
                     )['_id']
                 else:
