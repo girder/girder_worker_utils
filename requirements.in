@@ -1,4 +1,4 @@
-girder-client>=2
+girder-client>=2,<5
 jsonpickle
 requests>=2.20.0
 setuptools_scm
