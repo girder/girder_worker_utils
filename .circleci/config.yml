@@ -59,7 +59,8 @@ jobs:
           name: Build the Project
           command: |
             . ../venv/bin/activate
-            python setup.py sdist
+            pip install build
+            python -m build --sdist
 
       - run:
           name: Release to PyPI
